@@ -1,0 +1,2 @@
+C:/Users/BAHU/Desktop/WORKSPACE/ETHIOPOST-PROJECTS/nopCommerce-mobile-app/android/app/.cxx/RelWithDebInfo/2s5f2i1w/x86/CMakeFiles/edit_cache.dir
+C:/Users/BAHU/Desktop/WORKSPACE/ETHIOPOST-PROJECTS/nopCommerce-mobile-app/android/app/.cxx/RelWithDebInfo/2s5f2i1w/x86/CMakeFiles/rebuild_cache.dir

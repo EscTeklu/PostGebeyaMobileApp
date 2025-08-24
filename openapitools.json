@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/@openapitools/openapi-generator-cli/config.schema.json",
+  "spaces": 2,
+  "generator-cli": {
+    "version": "7.10.0",
+    "generators": {
+      "frontend": {
+        "input-spec": "swagger.json",
+        "generator-name": "dart-dio",
+        "output": "frontend_api",
+        "additionalProperties": {
+          "pubName": "frontend_api"
+        }
+      }
+    }
+  }
+}

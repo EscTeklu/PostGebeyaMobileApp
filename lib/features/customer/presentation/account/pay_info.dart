@@ -1,0 +1,108 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nopcommerce_mobile/constants/app_constants.dart';
+import 'package:nopcommerce_mobile/constants/global_variables.dart';
+import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
+import 'package:nopcommerce_mobile/router/route_utils.dart';
+
+enum ProgressIndicatorType { circular, linear }
+
+class PaymentInfo extends StatefulWidget {
+  const PaymentInfo({Key? key}) : super(key: key);
+
+  @override
+  State<PaymentInfo> createState() => _PaymentInfoState();
+}
+
+class _PaymentInfoState extends State<PaymentInfo> {
+  final GlobalKey webViewKey = GlobalKey();
+
+  InAppWebViewController? webViewController;
+  double progress = 0;
+  ProgressIndicatorType type = ProgressIndicatorType.linear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Progress Indicator: ${type.name}",
+              style: const TextStyle(fontSize: 18)),
+          actions: [
+            IconButton(
+                onPressed: () async {
+                  await webViewController?.loadUrl(
+                      urlRequest:
+                      URLRequest(url: WebUri("https://flutter.dev")));
+                },
+                icon: const Icon(Icons.home)),
+            IconButton(
+                onPressed: () async {
+                  await webViewController?.clearCache();
+                  await webViewController?.reload();
+                },
+                icon: const Icon(Icons.refresh)),
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: Text(ProgressIndicatorType.linear.name),
+                  onTap: () {
+                    setState(() {
+                      type = ProgressIndicatorType.linear;
+                    });
+                  },
+                ),
+                PopupMenuItem(
+                  child: Text(ProgressIndicatorType.circular.name),
+                  onTap: () {
+                    setState(() {
+                      type = ProgressIndicatorType.circular;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+        body: Column(children: <Widget>[
+          Expanded(
+              child: Stack(children: [
+                InAppWebView(
+                  key: webViewKey,
+                  initialUrlRequest: URLRequest(url: WebUri("https://flutter.dev")),
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    setState(() {
+                      this.progress = progress / 100;
+                    });
+                  },
+                ),
+                progress < 1.0 ? getProgressIndicator(type) : Container(),
+              ])),
+        ]));
+  }
+
+  Widget getProgressIndicator(ProgressIndicatorType type) {
+    switch (type) {
+      case ProgressIndicatorType.circular:
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: Colors.white.withAlpha(70),
+            ),
+            child: const CircularProgressIndicator(),
+          ),
+        );
+      case ProgressIndicatorType.linear:
+      default:
+        return LinearProgressIndicator(
+          value: progress,
+        );
+    }
+  }
+}
