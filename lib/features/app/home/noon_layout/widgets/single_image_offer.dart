@@ -28,11 +28,11 @@ class SingleImageOffer extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           headTitle,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, backgroundColor: Colors.white),
         ),
         Text(
           subTitle,
-          style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
+          style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14, backgroundColor: Colors.white),
         ),
         //const SizedBox(height: 12),
         Container(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_image.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_icon_button.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
+import 'package:nopcommerce_mobile/customize/models/product.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
 import 'package:nopcommerce_mobile/features/app/theme/custom_color_scheme.dart';
 import 'package:nopcommerce_mobile/features/cart/domain/cart_item.dart';
@@ -68,9 +69,9 @@ class _ProductCardState extends ConsumerState<ProductCard> {
       addToCartControllerProvider,
       (_, state) => state.showAlertDialogOnError(context),
     );
-
+    //final
     final state = ref.watch(addToCartControllerProvider);
-
+    //print(widget.product.videoModels?.isNotEmpty);
     const double borderRadius = 12;
     var cardwidth = widget.width ?? MediaQuery.of(context).size.width / 2;
 
@@ -186,7 +187,13 @@ class _ProductCardState extends ConsumerState<ProductCard> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
-
+                  //bahu added
+                  Text(
+                    widget.product.videoModels?.first.videoUrl ?? '',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
                   // Price and Add to Cart Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -333,7 +340,210 @@ class ProductCardPrice extends StatelessWidget {
     }
   }
 }
+//for card2
+class ProductCard2 extends ConsumerStatefulWidget {
+  const ProductCard2({
+    super.key,
+    required this.product,
+    this.onPressed,
+    this.width,
+  });
 
+  final Product product;
+  final VoidCallback? onPressed;
+  final double? width;
+
+  @override
+  ConsumerState<ProductCard2> createState() => _ProductCard2State();
+}
+
+class _ProductCard2State extends ConsumerState<ProductCard2> {
+  void addToCart() async {
+    _addToCart(ShoppingCartType.shoppingCart);
+  }
+
+  void _addToCart(ShoppingCartType cartType) async {
+    await ref
+        .read(addToCartControllerProvider.notifier)
+        .addCartItemFromCatalog(widget.product.id!, cartType)
+        .then(
+          (addProductToCartResponse) => {
+        if ((addProductToCartResponse?.success ?? false) && mounted)
+          {
+            showInSnackBar(
+              context,
+              (cartType == ShoppingCartType.shoppingCart
+                  ? context.locale!.product_add_to_card
+                  : context.locale!.product_add_to_wishlist),
+              color: Colors.green,
+            ),
+          }
+        else if (mounted)
+          {
+            context.pushNamed(
+              Routes.product.name,
+              pathParameters: {'id': widget.product.id.toString()},
+            ),
+          },
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<AsyncValue<CartItem>>(
+      addToCartControllerProvider,
+          (_, state) => state.showAlertDialogOnError(context),
+    );
+
+    final state = ref.watch(addToCartControllerProvider);
+
+    const double borderRadius = 12;
+    var cardwidth = widget.width ?? MediaQuery.of(context).size.width / 2;
+
+    var productPicture = Stack(
+      children: [
+        CustomImage(url: widget.product.defaultPictureUrl ?? ""),
+        /*if (widget.product.markAsNew ?? false) ...[
+          Container(
+            margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.tertiaryContainer,
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withOpacity(0.6),
+                  offset: const Offset(1, 1),
+                  blurRadius: 0.5,
+                ),
+              ],
+              borderRadius: const BorderRadius.all(Radius.circular(5)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+              child: Text(
+                context.locale!.product_new_product_label,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onTertiaryContainer,
+                ),
+              ),
+            ),
+          ),
+        ],*/
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(Icons.favorite_outline_sharp, color: Color(0xffEC692F)),
+          ),
+        ),
+      ],
+    );
+
+    return SizedBox(
+      width: cardwidth,
+      child: Card(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: StyleDictionary.mdSysColorPrimary.withOpacity(0.1),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: widget.onPressed,
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Image
+                  Expanded(
+                    flex: 3,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      child: Container(
+                        color: Colors.white,
+                        child: productPicture,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Star Rating
+                  /*Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: GlobalVariables.secondaryColor,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        ((widget.product.reviewOverviewModel?.totalReviews ??
+                            0) >
+                            0
+                            ? ((widget
+                            .product
+                            .reviewOverviewModel
+                            ?.ratingSum ??
+                            0) /
+                            (widget
+                                .product
+                                .reviewOverviewModel
+                                ?.totalReviews ??
+                                1))
+                            : 0.0)
+                            .toStringAsPrecision(2),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(width: 4),
+                      *//* Text(
+                        ("(123)"),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ), *//*
+                    ],
+                  ),*/
+
+                  // Product Name
+                  Text(
+                    widget.product.name ?? '',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+
+                  // Price and Add to Cart Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: ProductCard2Price(product: widget.product),
+                      ),
+                      //if (!(widget.product.productPrice?.disableBuyButton ??
+                         // false))
+                        Flexible(
+                          flex: 1,
+                          child: CustomIconButton(
+                            filled: true,
+                            icon: const Icon(Icons.shopping_cart, size: 18),
+                            onPressed: state.isLoading ? null : addToCart,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+//
 /* class ProductCard extends ConsumerStatefulWidget {
   const ProductCard({
     super.key,
@@ -542,52 +752,40 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   }
 }
 
-class ProductCardPrice extends StatelessWidget {
-  const ProductCardPrice({super.key, required this.product});
+
+} */
+class ProductCard2Price extends StatelessWidget {
+  const ProductCard2Price({super.key, required this.product});
 
   /// Product
-  final ProductOverviewModelDto product;
+  final Product product;
 
   @override
   Widget build(BuildContext context) {
-    if (product.productPrice != null) {
+    if (product.price != null) {
       CustomColors? myColors = Theme.of(context).extension<CustomColors>()!;
 
-      final productPrice = product.productPrice!;
-      final isRental = productPrice.isRental ?? false;
-      final isGrouded = product.productType == ProductType.groupedProduct;
+      final productPrice = product.price!;
+      //final isRental = productPrice.isRental ?? false;
+      //final isGrouded = product.productType == ProductType.groupedProduct;
 
-      if (productPrice.price != null) {
-        String price = productPrice.price!;
+      if (productPrice != null) {
+        String price = productPrice.toString();
         String priceBeforeText = '';
         String priceValue = '';
         String priceAfterText = '';
 
-        if (isRental || isGrouded) {
-          int spaceIndex = price.indexOf(" ");
 
-          if (spaceIndex > 0) {
-            if (isRental) {
-              priceValue = price.substring(0, spaceIndex);
-              priceAfterText = price.substring(spaceIndex + 1);
-            } else if (isGrouded) {
-              priceBeforeText = price.substring(0, spaceIndex);
-              priceValue = price.substring(spaceIndex + 1);
-            }
-          }
-        } else {
-          priceValue = price;
-        }
 
         return Column(
           children: [
-            if (productPrice.oldPrice != null)
+            if (productPrice != null)
               Wrap(
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      productPrice.oldPrice!,
+                      productPrice.toString()!,
                       style: TextStyle(
                         color: myColors.subTextColor,
                         fontSize: 12,
@@ -621,7 +819,11 @@ class ProductCardPrice extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   priceValue,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: priceValue.length > 7 ? 12 : 15,
                   ),
@@ -656,4 +858,4 @@ class ProductCardPrice extends StatelessWidget {
       return const SizedBox.shrink();
     }
   }
-} */
+}

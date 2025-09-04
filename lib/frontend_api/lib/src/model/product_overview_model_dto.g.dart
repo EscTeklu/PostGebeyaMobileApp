@@ -26,6 +26,8 @@ class _$ProductOverviewModelDto extends ProductOverviewModelDto {
   @override
   final BuiltList<PictureModelDto>? pictureModels;
   @override
+  final BuiltList<VideoModelDto>? videoModels;
+  @override
   final ProductSpecificationModelDto? productSpecificationModel;
   @override
   final ProductReviewOverviewModelDto? reviewOverviewModel;
@@ -48,6 +50,7 @@ class _$ProductOverviewModelDto extends ProductOverviewModelDto {
       this.markAsNew,
       this.productPrice,
       this.pictureModels,
+      this.videoModels,
       this.productSpecificationModel,
       this.reviewOverviewModel,
       this.id,
@@ -76,6 +79,7 @@ class _$ProductOverviewModelDto extends ProductOverviewModelDto {
         markAsNew == other.markAsNew &&
         productPrice == other.productPrice &&
         pictureModels == other.pictureModels &&
+        videoModels == other.videoModels &&
         productSpecificationModel == other.productSpecificationModel &&
         reviewOverviewModel == other.reviewOverviewModel &&
         id == other.id &&
@@ -94,6 +98,7 @@ class _$ProductOverviewModelDto extends ProductOverviewModelDto {
     _$hash = $jc(_$hash, markAsNew.hashCode);
     _$hash = $jc(_$hash, productPrice.hashCode);
     _$hash = $jc(_$hash, pictureModels.hashCode);
+    _$hash = $jc(_$hash, videoModels.hashCode);
     _$hash = $jc(_$hash, productSpecificationModel.hashCode);
     _$hash = $jc(_$hash, reviewOverviewModel.hashCode);
     _$hash = $jc(_$hash, id.hashCode);
@@ -114,6 +119,7 @@ class _$ProductOverviewModelDto extends ProductOverviewModelDto {
           ..add('markAsNew', markAsNew)
           ..add('productPrice', productPrice)
           ..add('pictureModels', pictureModels)
+          ..add('videoModels', videoModels)
           ..add('productSpecificationModel', productSpecificationModel)
           ..add('reviewOverviewModel', reviewOverviewModel)
           ..add('id', id)
@@ -170,6 +176,12 @@ class ProductOverviewModelDtoBuilder
   set pictureModels(ListBuilder<PictureModelDto>? pictureModels) =>
       _$this._pictureModels = pictureModels;
 
+  ListBuilder<VideoModelDto>? _videoModels;
+  ListBuilder<VideoModelDto> get videoModels =>
+      _$this._videoModels ??= new ListBuilder<VideoModelDto>();
+  set videoModels(ListBuilder<VideoModelDto>? videoModels) =>
+      _$this._videoModels = videoModels;
+
   ProductSpecificationModelDtoBuilder? _productSpecificationModel;
   ProductSpecificationModelDtoBuilder get productSpecificationModel =>
       _$this._productSpecificationModel ??=
@@ -212,6 +224,7 @@ class ProductOverviewModelDtoBuilder
       _markAsNew = $v.markAsNew;
       _productPrice = $v.productPrice?.toBuilder();
       _pictureModels = $v.pictureModels?.toBuilder();
+      _videoModels = $v.videoModels?.toBuilder();
       _productSpecificationModel = $v.productSpecificationModel?.toBuilder();
       _reviewOverviewModel = $v.reviewOverviewModel?.toBuilder();
       _id = $v.id;
@@ -249,6 +262,7 @@ class ProductOverviewModelDtoBuilder
               markAsNew: markAsNew,
               productPrice: _productPrice?.build(),
               pictureModels: _pictureModels?.build(),
+              videoModels: _videoModels?.build(),
               productSpecificationModel: _productSpecificationModel?.build(),
               reviewOverviewModel: _reviewOverviewModel?.build(),
               id: id,
@@ -260,6 +274,8 @@ class ProductOverviewModelDtoBuilder
         _productPrice?.build();
         _$failedField = 'pictureModels';
         _pictureModels?.build();
+        _$failedField = 'videoModels';
+        _videoModels?.build();
         _$failedField = 'productSpecificationModel';
         _productSpecificationModel?.build();
         _$failedField = 'reviewOverviewModel';

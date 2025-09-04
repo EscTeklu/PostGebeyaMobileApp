@@ -70,7 +70,17 @@ class AccountRewardPointsContents extends ConsumerWidget {
           ),
         ),
       ),
-      body: const RewardPointsHistory(),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          const RewardPointsHistory(),
+        ],
+      )
     );
   }
 }

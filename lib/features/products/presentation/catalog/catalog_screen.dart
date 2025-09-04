@@ -24,17 +24,27 @@ class CatalogScreen extends ConsumerWidget {
         ),
         actions: const [ProductSearch()],
       ),
-      body: ListView(
-        controller: ScrollController(),
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: CategoriesList(categoriesListValue),
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
           ),
-          //const ManufacturersGrid(),
-          const VendorGrid(),
+          ListView(
+            controller: ScrollController(),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(5),
+                child: CategoriesList(categoriesListValue),
+              ),
+              //const ManufacturersGrid(),
+              const VendorGrid(),
+            ],
+          ),
         ],
-      ),
+      )
     );
   }
 }

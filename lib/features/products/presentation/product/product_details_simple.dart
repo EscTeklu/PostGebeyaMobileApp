@@ -6,8 +6,10 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:frontend_api/frontend_api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_outlined_button.dart';
+import 'package:nopcommerce_mobile/customize/widgets/video_player.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
 import 'package:nopcommerce_mobile/features/app/theme/custom_color_scheme.dart';
+import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/add_to_card/add_to_cart_controller.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/cart_providers.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
@@ -254,7 +256,34 @@ class _ProductDetailsSimpleState extends ConsumerState<ProductDetailsSimple> {
       });
     }
   }
+  //
+  String extractYoutubeId(String embedUrl) {
+    final uri = Uri.parse(embedUrl);
+    final segments = uri.pathSegments;
+    if (segments.length >= 2 && segments[0] == 'embed') {
+      return segments[1].split('?').first;
+    }
+    throw FormatException('Invalid YouTube embed URL');
+  }
 
+  String thumbnailUrl(String videoId) =>
+      'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+
+  String getThumbNail(String url){
+    if (url.isEmpty) {
+      return '';
+    }
+    // Safe to extract ID and thumbnail now
+    late String videoId;
+    try {
+      videoId = extractYoutubeId(url);
+    } catch (_) {
+      // Invalid format → render nothing or fallback UI
+      return '';
+    }
+    final thumb = thumbnailUrl(videoId);
+    return thumb;
+  }
   @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue>(
@@ -265,8 +294,17 @@ class _ProductDetailsSimpleState extends ConsumerState<ProductDetailsSimple> {
     final relatedProductsListValue = ref.watch(
       relatedProductsListProvider(widget.product.id!),
     );
-
+    //added bahu
+    final user = ref.watch(authStateChangesProvider);
     CustomColors? customColors = Theme.of(context).extension<CustomColors>()!;
+
+    //
+    //final videoId = extractYoutubeId( ?? '');
+    //final thumb  = thumbnailUrl(videoId);
+    //
+    // Guard: no URL → render nothing (or a placeholder)
+    //final url = widget.product.videoModels!.first.videoUrl?? 'https://www.youtube.com/embed/VqypM6LebXA?si=FDgbXo6mxwDDwRHH';
+    
 
     return Stack(
       children: [
@@ -322,6 +360,17 @@ class _ProductDetailsSimpleState extends ConsumerState<ProductDetailsSimple> {
                           fit: FlexFit.tight,
                           child: Column(
                             children: [
+                              /*Image.network(thumb),
+                              Icon(Icons.play_circle_outline, size: 64, color: Colors.white70),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: SelectableText(
+                                  widget.product.videoModels!.first.videoUrl!,
+                                  style: Theme.of(context).textTheme.titleLarge!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),*/
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: SelectableText(
@@ -737,11 +786,88 @@ class _ProductDetailsSimpleState extends ConsumerState<ProductDetailsSimple> {
                         ),
                       ),
                     // #endregion
+
                     // #region Product tags
                     if (widget.product.productTags?.isNotEmpty ?? false)
                       ProductTags(productTags: widget.product.productTags!),
                     // #endregion
+                    // #region Product video
+                    if (widget.product.videoModels?.isNotEmpty ?? false)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5, bottom: 5),
+                      child: GestureDetector(
+                        onTap: () {
+                          showGeneralDialog(
+                            context: context,
+                           barrierDismissible: true,
+                            barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                            barrierColor: Colors.black54,            // dim the background
+                            transitionDuration: const Duration(milliseconds: 200),
+                            pageBuilder: (_, __, ___) {
+                              final w = MediaQuery.of(context).size.width * 0.8;
+                              final h = MediaQuery.of(context).size.height * 0.5;
 
+                              return Center(
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Container(
+                                    width: w,
+                                    height: h,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    clipBehavior: Clip.hardEdge,
+                                    child: WebViewYouTube(embedUrl: widget.product.videoModels!.first.videoUrl.toString()),
+                                  ),
+                                ),
+                              );
+                            },
+                            transitionBuilder: (_, anim, __, child) {
+                              return ScaleTransition(
+                                scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+                                child: child,
+                              );
+                            },
+                          );
+                          /*showDialog(
+                              context: context,
+                              builder: (_) => WebViewYouTube(embedUrl: url),
+                            );*/
+                        },
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Image.network(getThumbNail(widget.product.videoModels!.first.videoUrl!)),
+                            Icon(Icons.play_circle_outline,
+                                size: 64, color: Colors.white),
+                            /*SizedBox(height: 8),
+                            Text('Watch product video',
+                                style: Theme.of(context).textTheme.titleMedium),*/
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    /*if (widget
+                        .product
+                        .videoModels
+                        ?.first
+                        .videoUrl
+                        ?.isNotEmpty ??
+                        false)
+                      Flexible(
+                        flex: 2,
+                        fit: FlexFit.tight,
+                        child: Column(
+                          children: [
+                            Image.network(thumb),
+                            Icon(Icons.play_circle_outline, size: 64, color: Colors.white70),
+
+                          ],
+                        ),
+                      ),*/
+                    // #endregion
                     // #region Related products
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
@@ -759,6 +885,7 @@ class _ProductDetailsSimpleState extends ConsumerState<ProductDetailsSimple> {
           ],
         ),
         if (!(widget.product.addToCart?.disableBuyButton ?? false))
+
           Align(
             alignment: Alignment.bottomCenter,
             child: Row(
@@ -767,6 +894,7 @@ class _ProductDetailsSimpleState extends ConsumerState<ProductDetailsSimple> {
                   child: ProductBottomBar(
                     product: widget.product,
                     addToCart: addToCart,
+                    isGuest: user.value?.isGuest ?? true,
                   ),
                 ),
               ],

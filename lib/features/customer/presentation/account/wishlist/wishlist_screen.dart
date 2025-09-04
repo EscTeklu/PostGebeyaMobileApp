@@ -35,10 +35,19 @@ class WishlistScreen extends ConsumerWidget {
         ),
         scrolledUnderElevation: 5,
       ),
-      body: AsyncValueWidget<WishlistModelDto?>(
-        value: wishlist,
-        data:
-            (wishlist) => RefreshIndicator(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          AsyncValueWidget<WishlistModelDto?>(
+            value: wishlist,
+            data:
+                (wishlist) => RefreshIndicator(
               onRefresh: () {
                 return ref.refresh(wishlistProvider.future);
               },
@@ -46,46 +55,48 @@ class WishlistScreen extends ConsumerWidget {
                 wishlist: wishlist,
                 itemBuilder:
                     (_, item, index) => WishlistItem(
-                      item: item,
-                      itemIndex: index,
-                      isEditable: wishlist?.isEditable ?? true,
-                    ),
+                  item: item,
+                  itemIndex: index,
+                  isEditable: wishlist?.isEditable ?? true,
+                ),
                 widgetBuilder:
                     (_) => CustomFilledButton(
-                      text: context.locale!.account_wishlist_add_all,
-                      isBigButton: true,
-                      onPressed:
-                          state.isLoading
-                              ? null
-                              : () {
-                                ref
-                                    .read(wishlistControllerProvider.notifier)
-                                    .addAllItemToCart()
-                                    .whenComplete(
-                                      () async => await ref
-                                          .refresh(
-                                            shoppingCartFutureProvider.future,
-                                          )
-                                          .whenComplete(
-                                            () => ref
-                                                .refresh(
-                                                  shoppingCartTotalsProvider
-                                                      .future,
-                                                )
-                                                .whenComplete(() {
-                                                  if (context.mounted) {
-                                                    context.goNamed(
-                                                      Routes.cart.name,
-                                                    );
-                                                  }
-                                                }),
-                                          ),
-                                    );
-                              },
-                    ),
+                  text: context.locale!.account_wishlist_add_all,
+                  isBigButton: true,
+                  onPressed:
+                  state.isLoading
+                      ? null
+                      : () {
+                    ref
+                        .read(wishlistControllerProvider.notifier)
+                        .addAllItemToCart()
+                        .whenComplete(
+                          () async => await ref
+                          .refresh(
+                        shoppingCartFutureProvider.future,
+                      )
+                          .whenComplete(
+                            () => ref
+                            .refresh(
+                          shoppingCartTotalsProvider
+                              .future,
+                        )
+                            .whenComplete(() {
+                          if (context.mounted) {
+                            context.goNamed(
+                              Routes.cart.name,
+                            );
+                          }
+                        }),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-      ),
+          ),
+        ],
+      )
     );
   }
 }

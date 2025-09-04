@@ -95,12 +95,22 @@ class SettingsScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ResponsiveScrollable(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: items,
-        ),
-      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          ResponsiveScrollable(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: items,
+            ),
+          ),
+        ],
+      )
     );
   }
 }

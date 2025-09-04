@@ -27,7 +27,7 @@ class PlaceholderContainer extends ConsumerWidget {
           children: [
             Text(
               message,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(backgroundColor: Colors.white),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32.0),

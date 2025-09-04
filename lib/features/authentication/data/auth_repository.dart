@@ -15,9 +15,32 @@ class AuthenticateRepository extends BaseRepository {
 
   AuthenticateRepository() {
     TokenHelper.onTokenChanged ??= _onTokenChanged;
+    TokenHelper.onTokenOTPChanged ?? _onTokenOTPChanged;
   }
 
   static Future _onTokenChanged(
+      {String? token, int? customerId, String? email}) async {
+    const storage = FlutterSecureStorage();
+
+    if (token == null) {
+      _authState.value = null;
+      await storage.delete(key: "user_id");
+      await storage.delete(key: "user_email");
+    } else {
+      customerId ??= int.parse(await storage.read(key: "user_id") ?? "0");
+      email ??= await storage.read(key: "user_email");
+
+      final nopCustomer = NopCustomer(
+          uid: customerId, token: token, email: email, isGuest: email == null);
+
+      _authState.value = nopCustomer;
+
+      await storage.write(key: "user_id", value: nopCustomer.uid.toString());
+      await storage.write(key: "user_email", value: nopCustomer.email);
+    }
+  }
+  //
+  static Future _onTokenOTPChanged(
       {String? token, int? customerId, String? email}) async {
     const storage = FlutterSecureStorage();
 
@@ -74,6 +97,22 @@ class AuthenticateRepository extends BaseRepository {
     }
     return false;
   }
+  //FOR OTP LOGIN
+  Future<bool> loginOTP({String? phone,String? token, int? userId}) async
+  {
+    if (phone != null && (token != null)) {
+      AppSettings.clear();
+      return await TokenHelper.askTokenOTP(
+        phone: phone,
+        token: token,
+        userId: userId,
+        reload: true,
+      ) !=
+          null;
+    }
+    return false;
+  }
+
 
   Future<bool> login({String? email, String? password}) async {
     final api = await WebApiHelper.getApi(

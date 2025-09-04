@@ -716,18 +716,28 @@ class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ResponsiveScrollable(
-        child: FocusScope(
-          node: _node,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: items,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-      ),
+          ResponsiveScrollable(
+            child: FocusScope(
+              node: _node,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: items,
+                ),
+              ),
+            ),
+          ),
+        ],
+      )
     );
   }
 }

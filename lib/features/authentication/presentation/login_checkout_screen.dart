@@ -99,110 +99,120 @@ class _LoginContentsState extends ConsumerState<LoginContents> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ResponsiveScrollable(
-        child: FocusScope(
-          node: _node,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                Card(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 15),
-                              child: Text(
-                                context.locale!.auth_already_registered,
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Email field
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: CustomerTextFormField(
-                          context.locale!.auth_email,
-                          value: email,
-                          (value) => email = value ?? '',
-                          onEditingComplete: () => _emailEditingComplete(),
-                          enabled: !state.isLoading,
-                          isEmail: true,
-                          submitted: _submitted,
-                        ),
-                      ),
-                      // Password field
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: CustomerTextFormField(
-                          context.locale!.auth_password,
-                          value: password,
-                          (value) => password = value ?? '',
-                          onEditingComplete: () => _passwordEditingComplete(),
-                          enabled: !state.isLoading,
-                          submitted: _submitted,
-                          obscureText: true,
-                          minLength: AppSettings.passwordMinLength,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                CustomFilledButton(
-                  text: context.locale!.auth_login,
-                  isLoading: state.isLoading,
-                  onPressed: state.isLoading ? null : () => _submit(),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: TextLink(
-                        label: context.locale!.auth_forgot_password,
-                        onTap:
-                            () => {
-                              context.pushNamed(Routes.forgotPassword.name),
-                            },
-                        textStyle: Theme.of(
-                          context,
-                        ).textTheme.titleMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: TextLink(
-                        label: context.locale!.auth_not_registered,
-                        onTap: () => {context.pushNamed(Routes.register.name)},
-                        textStyle: Theme.of(
-                          context,
-                        ).textTheme.titleMedium!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
             ),
           ),
-        ),
-      ),
+          ResponsiveScrollable(
+            child: FocusScope(
+              node: _node,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Card(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 15),
+                                  child: Text(
+                                    context.locale!.auth_already_registered,
+                                    style: Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Email field
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: CustomerTextFormField(
+                              context.locale!.auth_email,
+                              value: email,
+                                  (value) => email = value ?? '',
+                              onEditingComplete: () => _emailEditingComplete(),
+                              enabled: !state.isLoading,
+                              isEmail: true,
+                              submitted: _submitted,
+                            ),
+                          ),
+                          // Password field
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: CustomerTextFormField(
+                              context.locale!.auth_password,
+                              value: password,
+                                  (value) => password = value ?? '',
+                              onEditingComplete: () => _passwordEditingComplete(),
+                              enabled: !state.isLoading,
+                              submitted: _submitted,
+                              obscureText: true,
+                              minLength: AppSettings.passwordMinLength,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    CustomFilledButton(
+                      text: context.locale!.auth_login,
+                      isLoading: state.isLoading,
+                      onPressed: state.isLoading ? null : () => _submit(),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: TextLink(
+                            label: context.locale!.auth_forgot_password,
+                            onTap:
+                                () => {
+                              context.pushNamed(Routes.forgotPassword.name),
+                            },
+                            textStyle: Theme.of(
+                              context,
+                            ).textTheme.titleMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: TextLink(
+                            label: context.locale!.auth_not_registered,
+                            onTap: () => {context.pushNamed(Routes.register.name)},
+                            textStyle: Theme.of(
+                              context,
+                            ).textTheme.titleMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      )
     );
   }
 }

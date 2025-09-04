@@ -10,6 +10,12 @@ class AuthenticationService {
   Future<String?> recover(String email) {
     return ref.read(authRepositoryProvider).recover(email: email);
   }
+  //for OTP
+  Future<void> authenticateOTP(String phone, String token, int userId) {
+    return ref
+        .read(authRepositoryProvider)
+        .loginOTP(phone: phone, token: token, userId: userId);
+  }
 
   Future<void> authenticate(String email, String password) {
     return ref

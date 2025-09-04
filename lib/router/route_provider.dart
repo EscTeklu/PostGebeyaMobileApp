@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nopcommerce_mobile/customize/screens/login_option_screen.dart';
 import 'package:nopcommerce_mobile/features/address/presentation/create_update_address_screen.dart';
 import 'package:nopcommerce_mobile/features/app/home/presentation/home_screen.dart';
 import 'package:nopcommerce_mobile/features/app/page_not_found_screen.dart';
@@ -242,7 +243,8 @@ final routeProvider = Provider<GoRouter>((ref) {
                 pageBuilder:
                     (context, state) => MaterialPage(
                       key: state.pageKey,
-                      child: const LoginScreen(),
+                      //child: const LoginScreen(),
+                      child: const LoginOptionScreen(),
                     ),
                 routes: [
                   GoRoute(

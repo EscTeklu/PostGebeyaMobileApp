@@ -1,0 +1,2 @@
+D:/ETHIOPOST PROJECT/ethiocommerce_dev/EthioCommerce-mobile-app/android/app/.cxx/RelWithDebInfo/4e1v2o91/x86/CMakeFiles/edit_cache.dir
+D:/ETHIOPOST PROJECT/ethiocommerce_dev/EthioCommerce-mobile-app/android/app/.cxx/RelWithDebInfo/4e1v2o91/x86/CMakeFiles/rebuild_cache.dir

@@ -1,3 +1,7 @@
+import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
+import 'package:awesome_bottom_bar/chip_style.dart';
+import 'package:awesome_bottom_bar/tab_item.dart';
+import 'package:awesome_bottom_bar/widgets/inspired/inspired.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -43,11 +47,66 @@ class _ScaffoldWithBottomNavBarState
   @override
   Widget build(BuildContext context) {
     final cartItemsCount = ref.watch(cartItemsCountProvider);
+    List<TabItem> items = [
+      TabItem(
+        icon: Icons.home,
+        title: context.locale!.app_base_menu_home,
+      ),
+      TabItem(
+        icon: Icons.category,
+        title: context.locale!.app_base_menu_catalog,
+      ),
+      TabItem(
+        icon: Icons.shopping_cart,/*Stack(
+          children: [
+            const Center(child: Icon(Icons.shopping_cart)),
+            if (cartItemsCount > 0)
+              Positioned(
+                top: 4.0,
+                right: 15.0,
+                child: ShoppingCartIconBadge(itemsCount: cartItemsCount),
+              ),
+          ],
+        ),*/
+        count: Container(
+          padding: EdgeInsets.all(2.5),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(2.5),
+            child: Text(cartItemsCount.toString() ?? '0',
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: Colors.white),
+            ),
+          ),
+        ),
+        title: context.locale!.app_base_menu_cart,
+      ),
+      TabItem(
+        icon: Icons.account_circle,
+        title: context.locale!.app_base_menu_account,
+      ),
+    ];
+    Color bground = const Color(0xFF2C2E7B);
 
     return Scaffold(
-      backgroundColor: Colors.white70,
       body: widget.child,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomBarInspiredOutside(
+        items: items,
+        backgroundColor: bground,
+        color: Colors.white,
+        colorSelected: Colors.white,
+        height: 36,
+        iconSize: 20,
+        indexSelected: _currentIndex,
+        onTap: (index) => _onItemTapped(context, index),
+        itemStyle: ItemStyle.circle,
+        countStyle: CountStyle(background: Colors.red),
+        chipStyle: ChipStyle(notchSmoothness: NotchSmoothness.verySmoothEdge, background: const Color(0xFF2C2E7B)),
+      ),
+      /*BottomNavigationBar(
         backgroundColor: Colors.white,
         type: BottomNavigationBarType.fixed,
         unselectedItemColor: Colors.grey,
@@ -82,7 +141,7 @@ class _ScaffoldWithBottomNavBarState
           ),
         ],
         onTap: (index) => _onItemTapped(context, index),
-      ),
+      ),*/
     );
   }
 }

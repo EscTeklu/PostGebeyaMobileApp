@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
-import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:nopcommerce_mobile/customize/services/transaction_history_service.dart';
 import 'package:nopcommerce_mobile/customize/services/payment_service.dart';
@@ -71,7 +69,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                   }
                   return NavigationDecision.prevent;
 
-                } else if (status == 'payment_successful') {
+                } else if (status == 'payment_deposited') {
                   debugPrint('Payment was successful!');
                   // Verify with backend
                   try {

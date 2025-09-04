@@ -7,6 +7,12 @@ class LoginController extends BaseNopStateNotifier {
       : super();
   final AuthenticationService authenticationService;
 
+  //for OTP
+  Future<bool> submitOTP(String token ,String phone, int userId) async {
+    return await runWithGuard(
+            () => authenticationService.authenticateOTP(phone, token, userId));
+  }
+
   Future<bool> submit(String email, String password) async {
     return await runWithGuard(
         () => authenticationService.authenticate(email, password));

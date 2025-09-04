@@ -12,6 +12,8 @@ import 'package:frontend_api/src/model/picture_model_dto.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
+import '../../frontend_api.dart';
+
 part 'product_overview_model_dto.g.dart';
 
 /// ProductOverviewModelDto
@@ -59,6 +61,10 @@ abstract class ProductOverviewModelDto implements Built<ProductOverviewModelDto,
 
   @BuiltValueField(wireName: r'picture_models')
   BuiltList<PictureModelDto>? get pictureModels;
+  //
+  @BuiltValueField(wireName: r'video_models')
+  BuiltList<VideoModelDto>? get videoModels;
+
 
   @BuiltValueField(wireName: r'product_specification_model')
   ProductSpecificationModelDto? get productSpecificationModel;
@@ -156,6 +162,14 @@ class _$ProductOverviewModelDtoSerializer implements PrimitiveSerializer<Product
       yield serializers.serialize(
         object.pictureModels,
         specifiedType: const FullType.nullable(BuiltList, [FullType(PictureModelDto)]),
+      );
+    }
+    //bahu added
+    if (object.videoModels != null) {
+      yield r'video_models';
+      yield serializers.serialize(
+        object.videoModels,
+        specifiedType: const FullType.nullable(BuiltList, [FullType(VideoModelDto)]),
       );
     }
     if (object.productSpecificationModel != null) {
@@ -277,6 +291,14 @@ class _$ProductOverviewModelDtoSerializer implements PrimitiveSerializer<Product
           ) as BuiltList<PictureModelDto>?;
           if (valueDes == null) continue;
           result.pictureModels.replace(valueDes);
+          break;
+        case r'video_models':
+          final valueDes = serializers.deserialize(
+            value,
+            specifiedType: const FullType.nullable(BuiltList, [FullType(VideoModelDto)]),
+          ) as BuiltList<VideoModelDto>?;
+          if (valueDes == null) continue;
+          result.videoModels.replace(valueDes);
           break;
         case r'product_specification_model':
           final valueDes = serializers.deserialize(

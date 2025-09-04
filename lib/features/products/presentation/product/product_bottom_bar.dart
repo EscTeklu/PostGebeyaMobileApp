@@ -5,9 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/quantity_selector_widget.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/customize/widgets/checkout/checkout_modal.dart';
+import 'package:nopcommerce_mobile/features/app/repository_provider.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
+import 'package:nopcommerce_mobile/features/authentication/domain/nop_customer.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/add_to_card/add_to_cart_controller.dart';
+import 'package:nopcommerce_mobile/features/customer/data/customer_repository.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 
@@ -16,14 +19,17 @@ class ProductBottomBar extends ConsumerWidget {
     super.key,
     required this.product,
     required this.addToCart,
+    required this.isGuest,
   });
   final ProductDetailsModelDto product;
   final Function() addToCart;
-
+  final bool isGuest;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(addToCartControllerProvider);
-
+    final customerRepository =
+    ref.watch(getRepositoryProvider(() => CustomerRepository()));
+    late NopCustomer? user = ref.watch(authStateChangesProvider).value;
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -140,7 +146,65 @@ class ProductBottomBar extends ConsumerWidget {
                     padding: const EdgeInsets.only(left: 4),
                     child: ElevatedButton(
                       onPressed: () async {
-                        final user = ref.watch(authStateChangesProvider).value;
+                        //final user = ref.watch(authStateChangesProvider);
+                        print(isGuest);
+                          if(isGuest){
+                            showInSnackBar(context,"Is GUEST");
+                            final controller =
+                            ref.read(addToCartControllerProvider.notifier);
+                            await controller
+                                .addCartItemFromProduct(
+                              product.id!,
+                              product.addToCart?.enteredQuantity,
+                              ShoppingCartType.shoppingCart,
+                            )
+                                .then(
+                                  (addProductToCartResponse) => {
+
+                                //_fetchProductAttributes(),
+                              },
+                            );
+                            showDialog(
+                              context: context,
+                              builder: (_) => const CheckoutModal(),
+                            );
+                          }
+                        else{
+                          showInSnackBar(context,"Not GUEST");
+                          final controller =
+                          ref.read(addToCartControllerProvider.notifier);
+                          await controller
+                              .addCartItemFromProduct(
+                            product.id!,
+                            product.addToCart?.enteredQuantity,
+                            ShoppingCartType.shoppingCart,
+                          )
+                              .then(
+                                (addProductToCartResponse) => {
+                              showInSnackBar(
+                                context,
+                                (addProductToCartResponse?.success ?? false)
+                                    ? 'Success'
+                                    : addProductToCartResponse?.errors
+                                    .toString() ??
+                                    "",
+                                color: (addProductToCartResponse?.success ??
+                                    false)
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                              (addProductToCartResponse?.success ?? true)
+                                  ? context.pushNamed(Routes.checkout.name)
+                                  : ''
+                              //_fetchProductAttributes(),
+                            },
+                          );
+                        }
+
+                        /**/
+
+
+                        /*final user = ref.watch(authStateChangesProvider).value;
                         final controller = ref.read(
                           addToCartControllerProvider.notifier,
                         );
@@ -175,7 +239,7 @@ class ProductBottomBar extends ConsumerWidget {
                                     : '',
                                 //_fetchProductAttributes(),
                               },
-                            );
+                            );*/
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: GlobalVariables.secondaryColor,

@@ -517,6 +517,9 @@ Serializers _$serializers = (new Serializers().toBuilder()
           const FullType(BuiltList, const [const FullType(PictureModelDto)]),
           () => new ListBuilder<PictureModelDto>())
       ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(VideoModelDto)]),
+          () => new ListBuilder<VideoModelDto>())
+      ..addBuilderFactory(
           const FullType(BuiltMap,
               const [const FullType(String), const FullType.nullable(String)]),
           () => new MapBuilder<String, String?>())

@@ -26,7 +26,7 @@ class AccountScreen extends ConsumerWidget {
     );
     final state = ref.watch(accountControllerProvider);
     return Scaffold(
-      backgroundColor: GlobalVariables.backgroundColor,
+      //backgroundColor: GlobalVariables.backgroundColor,
       appBar: AppBar(
         backgroundColor: GlobalVariables.accentColor,
         title: Text(
@@ -71,12 +71,22 @@ class AccountScreen extends ConsumerWidget {
           ],
         ),
       ), */
-      body: ListView.builder(
-        itemCount: 3,
-        itemBuilder: (BuildContext context, int index) {
-          return getProfileCard(context, index, ref, user, state);
-        },
-      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          ListView.builder(
+            itemCount: 3,
+            itemBuilder: (BuildContext context, int index) {
+              return getProfileCard(context, index, ref, user, state);
+            },
+          ),
+        ],
+      )
     );
   }
 

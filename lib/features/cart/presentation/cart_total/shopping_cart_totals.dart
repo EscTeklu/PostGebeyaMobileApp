@@ -39,10 +39,12 @@ class CartTotalWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var rowNameStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+      backgroundColor: Colors.white,
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
     var rowValueStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+      backgroundColor: Colors.white,
       color: Theme.of(context).colorScheme.onSurface,
     );
 
@@ -134,7 +136,8 @@ class CartTotalWidget extends StatelessWidget {
                     ),
                     sizeBoxSpace,
                   ],
-                  if (cartTotals?.displayTaxRates ?? false) ...[
+
+                  /*if (cartTotals?.displayTaxRates ?? false) ...[
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.05,
                       child: ListView.builder(
@@ -151,10 +154,11 @@ class CartTotalWidget extends StatelessWidget {
                       ),
                     ),
 
-                  ],
-                  if (cartTotals?.giftCards?.isNotEmpty ?? false) ...[
+                  ],*/
+
+                  /*if (cartTotals?.giftCards?.isNotEmpty ?? false) ...[
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.05, // adjust height depending on expected number of gift cards
+                      height: MediaQuery.of(context).size.height * 0.05,
                       child: ListView.builder(
                         itemCount: cartTotals?.giftCards?.length ?? 0,
                         itemBuilder: (context, index) {
@@ -183,8 +187,7 @@ class CartTotalWidget extends StatelessWidget {
                       ),
                     ),
                     sizeBoxSpace,
-                  ],
-
+                  ],*/
 
                   /*if (cartTotals?.displayTaxRates ?? false) ...[
                   ListView.builder(
@@ -300,18 +303,26 @@ class CartTotalWidget extends StatelessWidget {
                     ),
                     sizeBoxSpace,
                   ],
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(child: Text("Total : ", style: rowNameStyle)),
-                  Flexible(
-                    child: Text(context.locale!.cart_total_calc_during_checkout,
-                      style: rowValueStyle!.copyWith(fontSize: 16),
-                      textAlign: TextAlign.end,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          "Total:",
+                          style: rowNameStyle,
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          (cartTotals?.orderTotal?.isNotEmpty ?? true)
+                              ? cartTotals?.orderTotal ?? ""
+                              : context.locale!.cart_total_calc_during_checkout,
+                          style: rowValueStyle!.copyWith(fontSize: 30),
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
                 ],
               ),
             ),

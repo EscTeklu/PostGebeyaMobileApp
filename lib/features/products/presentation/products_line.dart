@@ -29,14 +29,14 @@ class ProductsLine extends ConsumerWidget {
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      /* if (title?.isNotEmpty ?? false)
+                       if (title?.isNotEmpty ?? false)
                   Padding(
                     padding: const EdgeInsets.only(left: 10),
                     child: Text(
                       title!,
                       style: titleFontStyle,
                     ),
-                  ), */
+                  ),
                       Padding(
                         padding: const EdgeInsets.all(5.0),
                         child: ProductsLayoutLine(

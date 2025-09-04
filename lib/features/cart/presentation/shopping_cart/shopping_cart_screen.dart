@@ -54,36 +54,46 @@ class ShoppingCartScreen extends ConsumerWidget {
           )
         ],
       ),
-      body: AppSettings.enableShoppingCart
-          ? Consumer(
-              builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                final cartValue = ref.watch(shoppingCartFutureProvider);
-                return AsyncValueWidget<ShoppingCartModelDto?>(
-                  value: cartValue,
-                  data: (cart) => RefreshIndicator(
-                    onRefresh: () {
-                      return ref
-                          .refresh(shoppingCartFutureProvider.future)
-                          .whenComplete(() =>
-                              ref.refresh(shoppingCartTotalsProvider.future));
-                    },
-                    child: ShoppingCartBuilder(
-                      cart: cart,
-                      itemBuilder: (_, item, index) => ShoppingCartItem(
-                        item: item,
-                        itemIndex: index,
-                        isEditable: cart?.isEditable ?? true,
-                      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          AppSettings.enableShoppingCart
+              ? Consumer(
+            builder: (BuildContext context, WidgetRef ref, Widget? child) {
+              final cartValue = ref.watch(shoppingCartFutureProvider);
+              return AsyncValueWidget<ShoppingCartModelDto?>(
+                value: cartValue,
+                data: (cart) => RefreshIndicator(
+                  onRefresh: () {
+                    return ref
+                        .refresh(shoppingCartFutureProvider.future)
+                        .whenComplete(() =>
+                        ref.refresh(shoppingCartTotalsProvider.future));
+                  },
+                  child: ShoppingCartBuilder(
+                    cart: cart,
+                    itemBuilder: (_, item, index) => ShoppingCartItem(
+                      item: item,
+                      itemIndex: index,
+                      isEditable: cart?.isEditable ?? true,
                     ),
                   ),
-                );
-              },
-            )
-          : PlaceholderContainer(
-              message: context.locale!.cart_disabled,
-              buttonLable: context.locale!.app_continue_shopping,
-              onPressButton: () => context.goNamed(Routes.catalog.name),
-            ),
+                ),
+              );
+            },
+          )
+              : PlaceholderContainer(
+            message: context.locale!.cart_disabled,
+            buttonLable: context.locale!.app_continue_shopping,
+            onPressButton: () => context.goNamed(Routes.catalog.name),
+          ),
+        ],
+      )
     );
   }
 }

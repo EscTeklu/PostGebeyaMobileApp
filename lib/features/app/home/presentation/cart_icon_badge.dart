@@ -13,7 +13,7 @@ class ShoppingCartIconBadge extends StatelessWidget {
       height: 20.0,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: Colors.red,
           shape: BoxShape.circle,
         ),
         child: Padding(
@@ -23,7 +23,7 @@ class ShoppingCartIconBadge extends StatelessWidget {
             textAlign: TextAlign.center,
             textScaler: TextScaler.noScaling,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer),
+                color: Colors.white),
           ),
         ),
       ),
