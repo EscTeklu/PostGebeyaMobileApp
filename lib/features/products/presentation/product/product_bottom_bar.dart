@@ -11,7 +11,6 @@ import 'package:nopcommerce_mobile/features/authentication/domain/nop_customer.d
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/add_to_card/add_to_cart_controller.dart';
 import 'package:nopcommerce_mobile/features/customer/data/customer_repository.dart';
-import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 
 class ProductBottomBar extends ConsumerWidget {
@@ -117,7 +116,7 @@ class ProductBottomBar extends ConsumerWidget {
                   flex: 1,
                   fit: FlexFit.tight,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 6),
+                    padding: const EdgeInsets.only(left: 6, bottom: 9),
                     child: ElevatedButton(
                       onPressed: addToCart,
                       style: ElevatedButton.styleFrom(
@@ -143,7 +142,7 @@ class ProductBottomBar extends ConsumerWidget {
                   flex: 1,
                   fit: FlexFit.tight,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 4),
+                    padding: const EdgeInsets.only(left: 4, bottom: 9),
                     child: ElevatedButton(
                       onPressed: () async {
                         //final user = ref.watch(authStateChangesProvider);

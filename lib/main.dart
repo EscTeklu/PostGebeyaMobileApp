@@ -47,7 +47,19 @@ void registerErrorHandlers(ErrorLogger errorLogger) {
         backgroundColor: Colors.red,
         title: const Text('An error occurred'),
       ),
-      body: Center(child: Text(details.toString())),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          Center(child: Text(details.toString())),
+          Center(child: Text(details.exceptionAsString())),
+          Center(child: Text(details.stack.toString())),
+        ],
+      )
     );
   };
 }

@@ -11,7 +11,6 @@ import 'package:nopcommerce_mobile/features/app/splash_screen.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/forgot_password_screen.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/login_checkout_screen.dart';
-import 'package:nopcommerce_mobile/features/authentication/presentation/login_screen.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/register_screen.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/shopping_cart/shopping_cart_screen.dart';
 import 'package:nopcommerce_mobile/features/checkout/presentation/steps/checkout_screen.dart';
@@ -29,7 +28,6 @@ import 'package:nopcommerce_mobile/features/customer/presentation/account/orders
 import 'package:nopcommerce_mobile/features/customer/presentation/account/product_reviews/account_product_reviews_screen.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/return_requests/account_return_requests_screen.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/reward_points/account_reward_points_screen.dart';
-import 'package:nopcommerce_mobile/features/customer/presentation/account/web_info.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/wishlist/wishlist_screen.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/catalog/catalog_screen.dart';
 import 'package:nopcommerce_mobile/features/settings/presentation/settings_screen.dart';
@@ -56,6 +54,45 @@ final routeProvider = Provider<GoRouter>((ref) {
   final shellNavigatorKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
+    initialLocation: '/home',
+    debugLogDiagnostics: kDebugMode,
+    redirect: (BuildContext context, GoRouterState state) {
+      final customer = authRepository.currentCustomer;
+      final path = state.uri.path;
+      final topRoute = state.topRoute?.path;
+
+      if (customer == null) {
+        if (path == '/home') {
+          return "/splash";
+        }
+      } else {
+        final isGuest = customer.isGuest;
+        if (!isGuest) {
+          if (topRoute == "login" ||
+              topRoute == "register" ||
+              path == "/splash") {
+            return '/home';
+          }
+        } else {
+          if (path == "/splash") {
+            return '/home';
+          }
+        }
+      }
+
+      return null;
+    },
+    refreshListenable:
+    GoRouterRefreshStream(authRepository.authStateChanges()),
+    navigatorKey: rootNavigatorKey,
+    routes: [
+      GoRoute(
+        path: '/splash',
+        name: Routes.splash.name,
+        builder: (context, state) =>
+            SplashScreen(apiVersion: webApiVersion.value),
+      ),
+  /*return GoRouter(
     initialLocation: '/splash',
     debugLogDiagnostics: kDebugMode,
     redirect: (BuildContext context, GoRouterState state) {
@@ -88,14 +125,24 @@ final routeProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/splash',
         name: Routes.splash.name,
-        builder: (context, state) => MyHomePage(),
-      ),
+        builder: (context, state) => const SplashScreen(),
+      ),*/
       ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
           return ScaffoldWithBottomNavBar(goRouterState: state, child: child);
         },
         routes: [
+          GoRoute(
+            path: '/orders',
+            name: Routes.myOrders.name,
+            pageBuilder:
+                (context, state) => NoTransitionPage(
+              key: state.pageKey,
+              restorationId: state.pageKey.value,
+              child: const AccountOrdersScreen(),
+            ),
+          ),
           GoRoute(
             path: '/home',
             name: Routes.home.name,

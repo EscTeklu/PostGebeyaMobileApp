@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:nopcommerce_mobile/constants/app_constants.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
-import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
-import 'package:nopcommerce_mobile/router/route_utils.dart';
 
 enum ProgressIndicatorType { circular, linear }
 
 class PaymentInfo extends StatefulWidget {
-  const PaymentInfo({Key? key}) : super(key: key);
+  const PaymentInfo({super.key});
 
   @override
   State<PaymentInfo> createState() => _PaymentInfoState();

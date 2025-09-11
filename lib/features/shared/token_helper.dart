@@ -3,13 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_api/frontend_api.dart';
-import 'package:nopcommerce_mobile/common_widgets/alert_dialogs.dart';
 import 'package:nopcommerce_mobile/constants/app_constants.dart';
-import 'package:nopcommerce_mobile/customize/services/api_service.dart';
-import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
 import 'package:nopcommerce_mobile/features/shared/settings.dart';
 import 'package:synchronized/synchronized.dart';
-import 'package:universal_html/js.dart';
 
 mixin TokenHelper {
   static String? _token;

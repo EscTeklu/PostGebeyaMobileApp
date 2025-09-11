@@ -1,11 +1,8 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
-import 'package:awesome_bottom_bar/chip_style.dart';
-import 'package:awesome_bottom_bar/tab_item.dart';
 import 'package:awesome_bottom_bar/widgets/inspired/inspired.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nopcommerce_mobile/features/app/home/presentation/cart_icon_badge.dart';
 import 'package:nopcommerce_mobile/features/cart/application/cart_service.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 
@@ -84,6 +81,10 @@ class _ScaffoldWithBottomNavBarState
         ),
         title: context.locale!.app_base_menu_cart,
       ),
+      /*TabItem(
+        icon: Icons.receipt_long_rounded,
+        title: 'Orders',
+      ),*/
       TabItem(
         icon: Icons.account_circle,
         title: context.locale!.app_base_menu_account,

@@ -1,9 +1,42 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:frontend_api/frontend_api.dart';
+import 'package:nopcommerce_mobile/customize/models/product_model.dart';
+import 'package:nopcommerce_mobile/customize/services/api_service.dart';
 import 'package:nopcommerce_mobile/features/shared/base_repository.dart';
 import 'package:nopcommerce_mobile/features/shared/web_api_helper.dart';
 
 class ProductRepository extends BaseRepository {
+  final ApiService apiService = ApiService();
+  ///Get Most Sold products
+  Future<List<Product>?> getMostSoldProducts() async {
+
+    final response = await apiService.getMostSoldProducts();
+    /*final api =
+    await WebApiHelper.getApi((frontendApi) => frontendApi.getProductApi());
+    final response = await api.apiFrontendProductHomePageProductsGet();*/
+
+    if (response.isNotEmpty) {
+      return response;
+    }
+
+    return null;
+  }
+  Future<List<Product>?> getNewProducts() async {
+
+    final response = await apiService.fetchNewProducts();
+    if (response.isNotEmpty) {
+      return response;
+    }
+    return null;
+  }
+  Future<List<Product>?> getDiscountProducts() async {
+
+    final response = await apiService.getDiscountedProducts();
+    if (response.isNotEmpty) {
+      return response;
+    }
+    return null;
+  }
   ///Get home page products
   Future<BuiltList<ProductOverviewModelDto>?> getHomePageProducts() async {
     final api =

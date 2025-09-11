@@ -79,7 +79,7 @@ class QuantitySelector extends StatelessWidget {
             )
             : SizedBox(
               height: 48,
-              width: 125,
+              width: 120,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,

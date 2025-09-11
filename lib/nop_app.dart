@@ -25,7 +25,7 @@ class NopMobileApp extends ConsumerWidget {
     return MaterialApp.router(
       color: Colors.white,
       routerConfig: router,
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
       restorationScopeId: 'app',
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

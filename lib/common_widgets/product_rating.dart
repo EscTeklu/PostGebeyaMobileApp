@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
-import 'package:nopcommerce_mobile/features/app/theme/custom_color_scheme.dart';
 
 /// Shows the product rating score and the number of ratings
 class ProductRating extends StatelessWidget {
@@ -11,7 +10,6 @@ class ProductRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CustomColors myColors = Theme.of(context).extension<CustomColors>()!;
 
     return Row(
       children: [

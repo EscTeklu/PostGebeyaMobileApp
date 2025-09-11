@@ -19,7 +19,7 @@ mixin AddressWidget {
           child: SizedBox(
             width: double.infinity,
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(12.0),
               child: Text("New Address", style: TextStyle(color: Colors.white),),
             ),
           ),

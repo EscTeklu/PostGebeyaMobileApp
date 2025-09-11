@@ -4,11 +4,6 @@
 
 // ignore_for_file: unused_element
 import 'package:built_collection/built_collection.dart';
-import 'package:frontend_api/src/model/product_review_overview_model_dto.dart';
-import 'package:frontend_api/src/model/product_overview_product_price_model_dto.dart';
-import 'package:frontend_api/src/model/product_specification_model_dto.dart';
-import 'package:frontend_api/src/model/product_type.dart';
-import 'package:frontend_api/src/model/picture_model_dto.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 

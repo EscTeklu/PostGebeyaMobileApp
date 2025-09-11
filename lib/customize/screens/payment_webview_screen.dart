@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
+import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:nopcommerce_mobile/customize/services/transaction_history_service.dart';
 import 'package:nopcommerce_mobile/customize/services/payment_service.dart';
@@ -94,9 +96,31 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
                     setState(() => loading = false);
                   }
                   if (mounted) {
-                    Navigator.pop(context, true);
+                    //Navigator.pop(context, true);
                   }
-                  return NavigationDecision.prevent;
+                  //return NavigationDecision.prevent;
+                }else if (request.url.contains('/orderdetails/') ||
+                    request.url.contains('/completed/')) {
+                  int orderId = -1;
+
+                  try {
+                    orderId = int.parse(request.url.split('/').last);
+                  } catch (e) {
+                    orderId = -1;
+                  }
+
+                  if (orderId > 0) {
+                    print("================== Current Order to be Paid ==================: $orderId");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Pay for Order : $orderId'))
+                    );
+                    context.pushNamed(
+                      Routes.orderDetails.name,
+                      pathParameters: {'id': orderId.toString()},
+                    );
+                  } else {
+                    context.pushNamed(Routes.home.name);
+                  }
                 }
               }
             }

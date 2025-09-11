@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:nopcommerce_mobile/constants/app_constants.dart';
-import 'package:nopcommerce_mobile/customize/models/new_product_model.dart';
 import 'package:nopcommerce_mobile/customize/models/nivo_slider_item.dart';
-//import 'package:nopcommerce_mobile/customize/models/product.dart';
-import 'package:nopcommerce_mobile/customize/models/discounted_product.dart';
 import 'package:nopcommerce_mobile/customize/models/product_model.dart';
 
 class ApiService {
@@ -22,21 +19,21 @@ class ApiService {
     }
   }
 
-  Future<List<DiscountProduct>> getDiscountedProducts() async {
-    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/discounted"));
+  Future<List<Product>> getDiscountedProducts() async {
+    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/v1/discounted"));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => DiscountProduct.fromJson(item)).toList();
+      return data.map((item) => Product.fromJson(item)).toList();
     } else {
       throw Exception("Failed to load discounted products");
     }
   }
 
-  Future<List<NewProductModel>> fetchNewProducts() async {
-    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/new"));
+  Future<List<Product>> fetchNewProducts() async {
+    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/v1/new"));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      return data.map((e) => NewProductModel.fromJson(e)).toList();
+      return data.map((e) => Product.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load new products');
     }

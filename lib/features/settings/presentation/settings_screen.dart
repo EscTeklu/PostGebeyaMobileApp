@@ -5,7 +5,6 @@ import 'package:nopcommerce_mobile/common_widgets/responsive_scrollable.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/theme/app_theme_provider.dart';
 import 'package:nopcommerce_mobile/features/settings/presentation/currency/currency_settings.dart';
-import 'package:nopcommerce_mobile/features/settings/presentation/language/language_settings.dart';
 import 'package:nopcommerce_mobile/features/settings/presentation/settings_providers.dart';
 import 'package:nopcommerce_mobile/features/settings/presentation/tax/tax_settings.dart';
 import 'package:nopcommerce_mobile/frontend_api/lib/frontend_api.dart';

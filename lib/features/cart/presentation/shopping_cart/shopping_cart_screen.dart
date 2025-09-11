@@ -20,14 +20,14 @@ class ShoppingCartScreen extends ConsumerWidget {
   final Color accentColor = const Color(0xFF2C2E7B);
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    /*ref.refresh(shoppingCartFutureProvider.future).then(
+    ref.refresh(shoppingCartFutureProvider.future).then(
           (value) => {
         if (value?.items?.isNotEmpty ?? false)
           {
             ref.refresh(shoppingCartTotalsProvider.future),
           }
       },
-    );*/
+    );
     ref.listen<AsyncValue<ShoppingCart>>(
       shoppingCartControllerProvider,
       (_, state) => state.showAlertDialogOnError(context),

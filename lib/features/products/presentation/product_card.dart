@@ -365,7 +365,7 @@ class _ProductCard2State extends ConsumerState<ProductCard2> {
   void _addToCart(ShoppingCartType cartType) async {
     await ref
         .read(addToCartControllerProvider.notifier)
-        .addCartItemFromCatalog(widget.product.id!, cartType)
+        .addCartItemFromCatalog(widget.product.id, cartType)
         .then(
           (addProductToCartResponse) => {
         if ((addProductToCartResponse?.success ?? false) && mounted)
@@ -762,100 +762,91 @@ class ProductCard2Price extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (product.price != null) {
-      CustomColors? myColors = Theme.of(context).extension<CustomColors>()!;
+    CustomColors? myColors = Theme.of(context).extension<CustomColors>()!;
 
-      final productPrice = product.price!;
-      //final isRental = productPrice.isRental ?? false;
-      //final isGrouded = product.productType == ProductType.groupedProduct;
+    final productPrice = product.price;
+    //final isRental = productPrice.isRental ?? false;
+    //final isGrouded = product.productType == ProductType.groupedProduct;
 
-      if (productPrice != null) {
-        String price = productPrice.toString();
-        String priceBeforeText = '';
-        String priceValue = '';
-        String priceAfterText = '';
+    String price = productPrice.toString();
+    String priceBeforeText = '';
+    String priceValue = '';
+    String priceAfterText = '';
 
 
 
-        return Column(
+    return Column(
+      children: [
+        Wrap(
           children: [
-            if (productPrice != null)
-              Wrap(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      productPrice.toString()!,
-                      style: TextStyle(
-                        color: myColors.subTextColor,
-                        fontSize: 12,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                productPrice.toString(),
+                style: TextStyle(
+                  color: myColors.subTextColor,
+                  fontSize: 12,
+                  decoration: TextDecoration.lineThrough,
+                ),
+                maxLines: 1,
+                textAlign: TextAlign.left,
               ),
-            if (priceBeforeText.isNotEmpty)
-              Wrap(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      priceBeforeText,
-                      style: TextStyle(
-                        color: myColors.subTextColor,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                ],
-              ),
-            if (priceValue.isNotEmpty)
+            ),
+          ],
+        ),
+        if (priceBeforeText.isNotEmpty)
+          Wrap(
+            children: [
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  priceValue,
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: priceValue.length > 7 ? 12 : 15,
+                  priceBeforeText,
+                  style: TextStyle(
+                    color: myColors.subTextColor,
+                    fontSize: 12,
                   ),
-                  maxLines: 2,
+                  maxLines: 1,
                   textAlign: TextAlign.left,
-                  overflow: TextOverflow.fade,
                 ),
               ),
-            if (priceAfterText.isNotEmpty)
-              Wrap(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      priceAfterText,
-                      style: TextStyle(
-                        color: myColors.subTextColor,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                ],
+            ],
+          ),
+        if (priceValue.isNotEmpty)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              priceValue,
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: priceValue.length > 7 ? 12 : 15,
               ),
-          ],
-        );
-      } else {
-        return const SizedBox.shrink();
+              maxLines: 2,
+              textAlign: TextAlign.left,
+              overflow: TextOverflow.fade,
+            ),
+          ),
+        if (priceAfterText.isNotEmpty)
+          Wrap(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  priceAfterText,
+                  style: TextStyle(
+                    color: myColors.subTextColor,
+                    fontSize: 12,
+                  ),
+                  maxLines: 1,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
       }
-    } else {
-      return const SizedBox.shrink();
-    }
-  }
 }

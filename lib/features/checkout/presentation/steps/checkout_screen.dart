@@ -152,50 +152,61 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Stepper(
-        type: StepperType.horizontal,
-        onStepTapped: (step) => setState(() => _currentStep = step),
-        controlsBuilder: (context, details) => const SizedBox.shrink(),
-        currentStep: _currentStep,
-        steps: _steps(),
-        // controlsBuilder: (context, details) {
-        //   return Padding(
-        //     padding: const EdgeInsets.symmetric(vertical: 16.0),
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: <Widget>[
-        //         CustomFilledButton(
-        //           text: 'Continue',
-        //           onPressed: details.onStepContinue,
-        //         ),
-        //         if (_currentStep != 0)
-        //           CustomTextButton(
-        //             text: 'Back',
-        //             onPressed: details.onStepCancel,
-        //           ),
-        //       ],
-        //     ),
-        //   );
-        // },
-        // onStepContinue: () {
-        //   //_submit();
-        //   if (_isValid) {
-        //     _currentStep < (_steps().length - 1)
-        //         ? setState(() {
-        //             _currentStep += 1;
-        //           })
-        //         : null;
-        //   }
-        // },
-        // onStepCancel: () {
-        //   (_currentStep > 0)
-        //       ? setState(() {
-        //           _currentStep -= 1;
-        //           _isValid = true;
-        //         })
-        //       : null;
-        // },
-      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/bg5.jpg', // Replace with your image path
+              fit: BoxFit.cover,
+            ),
+          ),
+          Stepper(
+            type: StepperType.horizontal,
+            onStepTapped: (step) => setState(() => _currentStep = step),
+            controlsBuilder: (context, details) => const SizedBox.shrink(),
+            currentStep: _currentStep,
+            steps: _steps(),
+            // controlsBuilder: (context, details) {
+            //   return Padding(
+            //     padding: const EdgeInsets.symmetric(vertical: 16.0),
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: <Widget>[
+            //         CustomFilledButton(
+            //           text: 'Continue',
+            //           onPressed: details.onStepContinue,
+            //         ),
+            //         if (_currentStep != 0)
+            //           CustomTextButton(
+            //             text: 'Back',
+            //             onPressed: details.onStepCancel,
+            //           ),
+            //       ],
+            //     ),
+            //   );
+            // },
+            // onStepContinue: () {
+            //   //_submit();
+            //   if (_isValid) {
+            //     _currentStep < (_steps().length - 1)
+            //         ? setState(() {
+            //             _currentStep += 1;
+            //           })
+            //         : null;
+            //   }
+            // },
+            // onStepCancel: () {
+            //   (_currentStep > 0)
+            //       ? setState(() {
+            //           _currentStep -= 1;
+            //           _isValid = true;
+            //         })
+            //       : null;
+            // },
+          ),
+        ],
+      )
+
     );
   }
 }

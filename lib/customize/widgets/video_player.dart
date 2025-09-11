@@ -3,7 +3,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewYouTube extends StatefulWidget {
   final String embedUrl;
-  const WebViewYouTube({ Key? key, required this.embedUrl }) : super(key: key);
+  const WebViewYouTube({ super.key, required this.embedUrl });
 
   @override
   State<WebViewYouTube> createState() => _WebViewYouTubeState();

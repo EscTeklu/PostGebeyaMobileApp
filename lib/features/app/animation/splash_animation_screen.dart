@@ -50,8 +50,11 @@ class _SplashAnimationScreenState extends State<SplashAnimationScreen>
       _textController.forward();
     });
 
-    Timer(const Duration(seconds: 6), () {
-      context.pushReplacementNamed(Routes.home.name);
+    Timer(const Duration(seconds: 8), () {
+      if (mounted) {
+        context.pushReplacementNamed(Routes.home.name);
+      }
+
       /* GoRoute(
         path: '/home',
         name: Routes.home.name,
@@ -86,7 +89,8 @@ class _SplashAnimationScreenState extends State<SplashAnimationScreen>
               opacity: _fadeImage,
               child: ScaleTransition(
                 scale: _scaleImage,
-                child: Image.asset('assets/bottom_logo.png', width: 220),
+                //child: Image.asset('assets/bottom_logo.png', width: 220),
+                child: Text("Well Come !!!! "),
               ),
             ),
             const SizedBox(height: 24),

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -6,13 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/async_value.dart';
-import 'package:nopcommerce_mobile/common_widgets/custom_filled_button.dart';
-import 'package:nopcommerce_mobile/constants/app_constants.dart';
 import 'package:nopcommerce_mobile/customize/screens/payment_webview_screen.dart';
 import 'package:nopcommerce_mobile/customize/services/payment_service.dart';
 import 'package:nopcommerce_mobile/customize/widgets/checkout/section_price_row.dart';
 import 'package:nopcommerce_mobile/features/address/presentation/address_card.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
+import 'package:nopcommerce_mobile/features/cart/domain/shopping_cart.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/cart_providers.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/shopping_cart/checkout_attribute/checkout_attribute_builder.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/shopping_cart/shopping_cart_item.dart';
@@ -20,6 +18,7 @@ import 'package:nopcommerce_mobile/features/checkout/presentation/checkout_provi
 import 'package:nopcommerce_mobile/frontend_api/lib/frontend_api.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
+import 'package:nopcommerce_mobile/utils/async_value_ui.dart';
 import 'package:nopcommerce_mobile/utils/common_utility.dart';
 
 class ConfirmForm extends ConsumerWidget {
@@ -123,9 +122,11 @@ class _ConfirmFormContentsState extends ConsumerState<ConfirmFormContents> {
                 setState(() {
                   _msg = "Payment successful.";
                 });
+
                 ref.refresh(shoppingCartFutureProvider.future).then(
                       (value) =>
                   {
+                    ref.refresh(shoppingCartTotalsProvider.future),
                     if (value?.items?.isNotEmpty ?? false)
                       {
                         ref.refresh(shoppingCartTotalsProvider.future),
@@ -144,13 +145,14 @@ class _ConfirmFormContentsState extends ConsumerState<ConfirmFormContents> {
                 ref.refresh(shoppingCartFutureProvider.future).then(
                       (value) =>
                   {
+                    ref.refresh(shoppingCartTotalsProvider.future),
                     if (value?.items?.isNotEmpty ?? false)
                       {
                         ref.refresh(shoppingCartTotalsProvider.future),
                       }
                   },
                 );
-                context.goNamed(
+                context.replaceNamed(
                   Routes.orderDetails.name,
                   pathParameters: {'id': confirmOrderResponse.id.toString()},
                 );
@@ -174,8 +176,20 @@ class _ConfirmFormContentsState extends ConsumerState<ConfirmFormContents> {
 
   @override
   Widget build(BuildContext context) {
+    ref.refresh(shoppingCartFutureProvider.future).then(
+          (value) => {
+        if (value?.items?.isNotEmpty ?? false)
+          {
+            ref.refresh(shoppingCartTotalsProvider.future),
+          }
+      },
+    );
+    ref.listen<AsyncValue<ShoppingCart>>(
+      shoppingCartControllerProvider,
+          (_, state) => state.showAlertDialogOnError(context),
+    );
     final cartTotals = ref.watch(shoppingCartTotalsProvider);
-    //var orderTotal = widget.confirm.orderTotals.orderTotal;
+    var orderTotal = widget.confirm.orderTotals.orderTotal;
     //
     final orderData = widget.confirm.shoppingCart.orderReviewData;
     final state = ref.watch(checkoutControllerProvider);
@@ -308,7 +322,10 @@ class _ConfirmFormContentsState extends ConsumerState<ConfirmFormContents> {
                         valueColor: Colors.black),
                     const SectionPriceRow(label: 'Tax', value: '\$0.00'),
                     SectionPriceRow(
-                        label: 'Total', value: cartTotals.value!.orderTotal?? "", isBold: true),
+                        label: 'Total', value: (cartTotals.value!.orderTotal?.isNotEmpty ?? false)
+                        ? cartTotals.value!.orderTotal ?? ""
+                        : "",
+                        isBold: true),
                   ],
                 ),
               ),

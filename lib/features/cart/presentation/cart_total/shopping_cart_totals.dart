@@ -68,71 +68,83 @@ class CartTotalWidget extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          context.locale!.cart_total_subtotal,
-                          style: rowNameStyle,
-                        ),
-                        const Spacer(),
-                        Text(cartTotals?.subTotal ?? '', style: rowValueStyle),
-                      ],
-                    ),
+                    child: Card(
+                            color: Colors.white,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  context.locale!.cart_total_subtotal,
+                                  style: rowNameStyle,
+                                ),
+                                const Spacer(),
+                                Text(cartTotals?.subTotal ?? '', style: rowValueStyle),
+                              ],
+                            ),
+                          ),
                   ),
                   /**/sizeBoxSpace,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          context.locale!.cart_total_shipping,
-                          style: rowNameStyle,
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          (cartTotals?.shipping?.isNotEmpty ?? false)
-                              ? cartTotals?.shipping ?? ""
-                              : context.locale!.cart_total_calc_during_checkout,
-                          style: rowValueStyle,
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    ],
-                  ),
-                  sizeBoxSpace,
-                  if (discountValue?.isNotEmpty ?? false) ...[
-                    Row(
+                  Card(
+                    color: Colors.white,
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
                           child: Text(
-                            context.locale!.cart_total_discount,
+                            context.locale!.cart_total_shipping,
                             style: rowNameStyle,
                           ),
                         ),
                         Flexible(
-                          child: Text(discountValue ?? "", style: rowValueStyle),
+                          child: Text(
+                            (cartTotals?.shipping?.isNotEmpty ?? false)
+                                ? cartTotals?.shipping ?? ""
+                                : context.locale!.cart_total_calc_during_checkout,
+                            style: rowValueStyle,
+                            textAlign: TextAlign.end,
+                          ),
                         ),
                       ],
+                    ),
+                  ),
+                  sizeBoxSpace,
+                  if (discountValue?.isNotEmpty ?? false) ...[
+                    Card(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              context.locale!.cart_total_discount,
+                              style: rowNameStyle,
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(discountValue ?? "", style: rowValueStyle),
+                          ),
+                        ],
+                      ),
                     ),
                     sizeBoxSpace,
                   ],
                   if (cartTotals?.displayTax ?? false) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            context.locale!.cart_total_tax,
-                            style: rowNameStyle,
+                    Card(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              context.locale!.cart_total_tax,
+                              style: rowNameStyle,
+                            ),
                           ),
-                        ),
-                        Flexible(
-                          child: Text(cartTotals?.tax ?? '', style: rowValueStyle),
-                        ),
-                      ],
+                          Flexible(
+                            child: Text(cartTotals?.tax ?? '', style: rowValueStyle),
+                          ),
+                        ],
+                      ),
                     ),
                     sizeBoxSpace,
                   ],
@@ -238,91 +250,106 @@ class CartTotalWidget extends StatelessWidget {
                 sizeBoxSpace,
               ],*/
                   if ((cartTotals?.redeemedRewardPoints ?? 0) > 0) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            context.locale!.cart_total_reward_points.format([
-                              cartTotals?.redeemedRewardPoints ?? 0,
-                            ]),
-                            style: rowNameStyle,
+                    Card(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              context.locale!.cart_total_reward_points.format([
+                                cartTotals?.redeemedRewardPoints ?? 0,
+                              ]),
+                              style: rowNameStyle,
+                            ),
                           ),
-                        ),
-                        Flexible(
-                          child: Text(
-                            cartTotals?.redeemedRewardPointsAmount ?? '',
-                            style: rowValueStyle,
+                          Flexible(
+                            child: Text(
+                              cartTotals?.redeemedRewardPointsAmount ?? '',
+                              style: rowValueStyle,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     sizeBoxSpace,
                   ],
                   if (cartTotals?.paymentMethodAdditionalFee != null) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            context.locale!.cart_total_payment_additional_fee,
-                            style: rowNameStyle,
+                    Card(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              context.locale!.cart_total_payment_additional_fee,
+                              style: rowNameStyle,
+                            ),
                           ),
-                        ),
-                        Flexible(
-                          child: Text(
-                            cartTotals?.paymentMethodAdditionalFee ?? "",
-                            style: rowValueStyle,
+                          Flexible(
+                            child: Text(
+                              cartTotals?.paymentMethodAdditionalFee ?? "",
+                              style: rowValueStyle,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ) ,
+                    )
+                    ,
                     sizeBoxSpace,
                   ],
                   if (cartTotals?.willEarnRewardPoints != null &&
                       cartTotals?.willEarnRewardPoints != 0) ...[
-                    Row(
+                    Card(
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              context
+                                  .locale!
+                                  .cart_total_will_earn_reward_points_title,
+                              style: rowNameStyle,
+                            ),
+                          ),
+                          Flexible(
+                            child: Text(
+                              context.locale!.cart_total_will_earn_reward_points
+                                  .format([cartTotals?.willEarnRewardPoints]),
+                              style: rowValueStyle,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    ,
+                    sizeBoxSpace,
+                  ],
+                  Card(
+                    color: Colors.white,
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
                           child: Text(
-                            context
-                                .locale!
-                                .cart_total_will_earn_reward_points_title,
+                            "Total:",
                             style: rowNameStyle,
                           ),
                         ),
                         Flexible(
                           child: Text(
-                            context.locale!.cart_total_will_earn_reward_points
-                                .format([cartTotals?.willEarnRewardPoints]),
-                            style: rowValueStyle,
+                            (cartTotals?.orderTotal?.isNotEmpty ?? true)
+                                ? cartTotals?.orderTotal ?? ""
+                                : context.locale!.cart_total_calc_during_checkout,
+                            style: rowValueStyle!.copyWith(fontSize: 30),
+                            textAlign: TextAlign.end,
                           ),
                         ),
                       ],
                     ),
-                    sizeBoxSpace,
-                  ],
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          "Total:",
-                          style: rowNameStyle,
-                        ),
-                      ),
-                      Flexible(
-                        child: Text(
-                          (cartTotals?.orderTotal?.isNotEmpty ?? true)
-                              ? cartTotals?.orderTotal ?? ""
-                              : context.locale!.cart_total_calc_during_checkout,
-                          style: rowValueStyle!.copyWith(fontSize: 30),
-                          textAlign: TextAlign.end,
-                        ),
-                      ),
-                    ],
-                  ),
+                  )
+                  ,
                 ],
               ),
             ),

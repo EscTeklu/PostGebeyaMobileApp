@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_api/frontend_api.dart';
+import 'package:nopcommerce_mobile/customize/models/product_model.dart';
 import 'package:nopcommerce_mobile/features/products/data/product_repository.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/product/product_subscription_controller.dart';
 import 'package:nopcommerce_mobile/utils/base_nop_state.dart';
@@ -9,6 +10,25 @@ final productsRepositoryProvider = Provider<ProductRepository>((ref) {
   return ProductRepository();
 });
 
+final mostSoldProductsListFutureProvider =
+    FutureProvider.autoDispose<List<Product>?>(
+        (ref) async {
+      final productsRepository = ref.watch(productsRepositoryProvider);
+      return productsRepository.getMostSoldProducts();
+    });
+final newProductsListFutureProvider =
+FutureProvider.autoDispose<List<Product>?>(
+        (ref) async {
+      final productsRepository = ref.watch(productsRepositoryProvider);
+      return productsRepository.getNewProducts();
+    });
+final discountProductsListFutureProvider =
+FutureProvider.autoDispose<List<Product>?>(
+        (ref) async {
+      final productsRepository = ref.watch(productsRepositoryProvider);
+      return productsRepository.getDiscountProducts();
+    });
+//
 final homePageProductsListFutureProvider =
     FutureProvider.autoDispose<BuiltList<ProductOverviewModelDto>?>(
         (ref) async {

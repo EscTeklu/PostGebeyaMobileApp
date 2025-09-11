@@ -21,14 +21,14 @@ class _AnimationScreenState extends State<AnimationScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 6000),
+      duration: const Duration(milliseconds: 5000),
       vsync: this,
     );
     _animation = StaggeredRaindropAnimation(_controller);
     _controller.forward();
 
     _controller.addListener(() {
-      setState(() {});
+      //setState(() {});
     });
   }
 
@@ -82,8 +82,9 @@ class _AnimationScreenState extends State<AnimationScreen>
 
   @override
   void dispose() {
-    super.dispose();
+
     _controller.dispose();
+    super.dispose();
   }
 }
 

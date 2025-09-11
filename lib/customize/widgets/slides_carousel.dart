@@ -1,8 +1,6 @@
 
 
-import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/customize/models/nivo_slider_item.dart';

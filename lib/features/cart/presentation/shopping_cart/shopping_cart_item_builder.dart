@@ -135,6 +135,16 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
 
   @override
   Widget build(BuildContext context) {
+    //For Reorder fix
+    ref
+        .refresh(shoppingCartFutureProvider.future)
+        .then(
+          (value) => {
+        if (value?.items?.isNotEmpty ?? false)
+          {ref.refresh(shoppingCartTotalsProvider.future)},
+      },
+    );
+
     ref.listen<AsyncValue<ShoppingCart>>(
       shoppingCartControllerProvider,
           (_, state) => state.showAlertDialogOnError(context),

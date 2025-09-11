@@ -5,6 +5,8 @@ import 'package:nopcommerce_mobile/customize/services/api_service.dart';
 import 'package:nopcommerce_mobile/customize/screens/otp_verification_screen.dart';
 
 class PhoneInputScreen extends StatefulWidget {
+  const PhoneInputScreen({super.key});
+
   @override
   _PhoneInputScreenState createState() => _PhoneInputScreenState();
 }
@@ -132,7 +134,7 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                     margin: EdgeInsets.only(top: 100),
                     child: Center(
                       child: Text(
-                        "Phone Login",
+                        " ",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 35,

@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/customize/services/api_service.dart';
-import 'package:nopcommerce_mobile/features/app/home/presentation/home_screen.dart';
-import 'package:nopcommerce_mobile/features/authentication/data/auth_repository.dart';
 import 'package:nopcommerce_mobile/features/authentication/domain/nop_customer.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
-import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:nopcommerce_mobile/utils/base_nop_state.dart';
 import 'package:nopcommerce_mobile/utils/memory_storage.dart';
 import 'package:pinput/pinput.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 

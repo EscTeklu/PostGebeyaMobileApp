@@ -33,4 +33,5 @@ enum Routes {
   wishlist,
   contactUs,
   returnRequest,
+  myOrders,
 }

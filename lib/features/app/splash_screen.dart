@@ -2,20 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:nopcommerce_mobile/features/app/animation/animation_screen.dart';
 import 'package:nopcommerce_mobile/features/app/animation/splash_animation_screen.dart';
 
-/* class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key, this.apiVersion});
 
   final String? apiVersion;
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+    const Color accentColor = Color(0xFF2C2E7B);
+    return Material(
+      color: accentColor,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/bottom_logo.png', width: 220),
+        ],
+      ),
     );
   }
-} */
-
+}
+/*
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -40,3 +46,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+*/
