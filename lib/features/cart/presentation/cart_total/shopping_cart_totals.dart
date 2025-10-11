@@ -43,7 +43,7 @@ class CartTotalWidget extends StatelessWidget {
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
-    var rowValueStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
+    var rowValueStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
       backgroundColor: Colors.white,
       color: Theme.of(context).colorScheme.onSurface,
     );
@@ -57,6 +57,8 @@ class CartTotalWidget extends StatelessWidget {
         ? cartTotals?.orderTotalDiscount
         : "");
     return Flexible(flex: 1,
+      child: Card(
+        color: Colors.white,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -69,19 +71,19 @@ class CartTotalWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 15),
                     child: Card(
-                            color: Colors.white,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  context.locale!.cart_total_subtotal,
-                                  style: rowNameStyle,
-                                ),
-                                const Spacer(),
-                                Text(cartTotals?.subTotal ?? '', style: rowValueStyle),
-                              ],
-                            ),
+                      color: Colors.white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.locale!.cart_total_subtotal,
+                            style: rowNameStyle,
                           ),
+                          //const Spacer(),
+                          Text(cartTotals?.subTotal ?? '', style: rowValueStyle),
+                        ],
+                      ),
+                    ),
                   ),
                   /**/sizeBoxSpace,
                   Card(
@@ -149,106 +151,6 @@ class CartTotalWidget extends StatelessWidget {
                     sizeBoxSpace,
                   ],
 
-                  /*if (cartTotals?.displayTaxRates ?? false) ...[
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.05,
-                      child: ListView.builder(
-                        itemCount: cartTotals?.taxRates?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final taxRate = cartTotals!.taxRates![index];
-                          return Text(
-                            context.locale!.cart_total_tax_rates.format([
-                              taxRate.rate,
-                              taxRate.value,
-                            ]),
-                          );
-                        },
-                      ),
-                    ),
-
-                  ],*/
-
-                  /*if (cartTotals?.giftCards?.isNotEmpty ?? false) ...[
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.05,
-                      child: ListView.builder(
-                        itemCount: cartTotals?.giftCards?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final giftCard = cartTotals!.giftCards![index];
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  context.locale!.cart_total_gift_card.format([
-                                    giftCard.couponCode,
-                                    giftCard.remaining,
-                                  ]),
-                                  style: rowNameStyle,
-                                ),
-                              ),
-                              Flexible(
-                                child: Text(
-                                  giftCard.amount ?? "",
-                                  style: rowValueStyle,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    sizeBoxSpace,
-                  ],*/
-
-                  /*if (cartTotals?.displayTaxRates ?? false) ...[
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: cartTotals?.taxRates?.length,
-                    itemBuilder: (context, index) {
-                      return Text(
-                        context.locale!.cart_total_tax_rates.format([
-                          cartTotals?.taxRates![index].rate,
-                          cartTotals?.taxRates![index].value,
-                        ]),
-                      );
-                    },
-                  ),
-                  sizeBoxSpace,
-                ],
-                if (cartTotals?.giftCards?.isNotEmpty ?? false) ...[
-                ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: cartTotals?.giftCards?.length,
-                  itemBuilder: (context, index) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            context.locale!.cart_total_gift_card.format([
-                              cartTotals?.giftCards![index].couponCode,
-                              cartTotals?.giftCards![index].remaining,
-                            ]),
-                            style: rowNameStyle,
-                          ),
-                        ),
-                        Flexible(
-                          child: Text(
-                            cartTotals?.giftCards![index].amount ?? "",
-                            style: rowValueStyle,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                sizeBoxSpace,
-              ],*/
                   if ((cartTotals?.redeemedRewardPoints ?? 0) > 0) ...[
                     Card(
                       color: Colors.white,
@@ -355,6 +257,7 @@ class CartTotalWidget extends StatelessWidget {
             ),
           ],
         ),
+      ),
     );
   }
 }

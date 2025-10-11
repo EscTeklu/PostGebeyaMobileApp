@@ -67,9 +67,9 @@ class _GiftCardBoxState extends ConsumerState<GiftCardBox> {
             Row(
               children: [
                 Expanded(
-                  flex: 5,
+                  flex: 6,
                   child: SizedBox(
-                    height: 30,
+                    height: 35,
                     child: TextField(
                       keyboardType: TextInputType.text,
                       autofocus: false,
@@ -89,7 +89,7 @@ class _GiftCardBoxState extends ConsumerState<GiftCardBox> {
                 ),
                 const Expanded(flex: 1, child: SizedBox()),
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: CustomFilledButton(
                     onPressed: () => _apply().then((value) => {
                           if ((value?.isNotEmpty ?? false) && context.mounted)

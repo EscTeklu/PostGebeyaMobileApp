@@ -36,7 +36,28 @@ class ShoppingCartScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: GlobalVariables.backgroundColor,
       appBar: AppBar(
-        title: Text(context.locale!.cart, style: TextStyle(color: Colors.white)),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(1),
+              child: Image.asset(
+                'assets/bottom_logo.png',
+                height: 40,
+                width: 100,
+                fit: BoxFit.contain,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 60),
+              child: Text(
+                context.locale!.cart,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+
+          ],
+        ),
         backgroundColor: accentColor,
         actions: [
           IconButton(

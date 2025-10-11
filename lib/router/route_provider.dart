@@ -28,6 +28,7 @@ import 'package:nopcommerce_mobile/features/customer/presentation/account/orders
 import 'package:nopcommerce_mobile/features/customer/presentation/account/product_reviews/account_product_reviews_screen.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/return_requests/account_return_requests_screen.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/reward_points/account_reward_points_screen.dart';
+import 'package:nopcommerce_mobile/features/customer/presentation/account/web_info.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/wishlist/wishlist_screen.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/catalog/catalog_screen.dart';
 import 'package:nopcommerce_mobile/features/settings/presentation/settings_screen.dart';
@@ -308,7 +309,7 @@ final routeProvider = Provider<GoRouter>((ref) {
                     (context, state) => MaterialPage(
                       key: state.pageKey,
                       child: const RegisterScreen(),
-                      //child: const WebInfo(urlWeb: 'https://ethiopostmall.africom.et/register?returnUrl=%2F',),
+                     // child: const WebInfo(urlWeb: 'https://dev.africom.et/register?returnUrl=%2F',),
                     ),
               ),
               GoRoute(

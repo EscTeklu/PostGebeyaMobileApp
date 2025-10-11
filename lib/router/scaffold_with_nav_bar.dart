@@ -66,13 +66,13 @@ class _ScaffoldWithBottomNavBarState
           ],
         ),*/
         count: Container(
-          padding: EdgeInsets.all(2.5),
+          padding: EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: Colors.red,
             shape: BoxShape.circle,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(2.5),
+            padding: const EdgeInsets.all(2.9),
             child: Text(cartItemsCount.toString() ?? '0',
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: Colors.white),
@@ -90,59 +90,35 @@ class _ScaffoldWithBottomNavBarState
         title: context.locale!.app_base_menu_account,
       ),
     ];
-    Color bground = const Color(0xFF2C2E7B);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBody: true,
       body: widget.child,
-      bottomNavigationBar: BottomBarInspiredOutside(
+      bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(bottom: 0),
+         child:  BottomBarInspiredOutside(
         items: items,
-        backgroundColor: bground,
+        backgroundColor: const Color(0xFF2C2E7B),
         color: Colors.white,
         colorSelected: Colors.white,
-        height: 36,
-        iconSize: 20,
+        height: 42,
+        iconSize: 22,
+        elevation: 0,
+        padTop: 8,
+        padbottom: 8,
+        titleStyle: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+          color: Colors.white,
+        ),
         indexSelected: _currentIndex,
         onTap: (index) => _onItemTapped(context, index),
         itemStyle: ItemStyle.circle,
         countStyle: CountStyle(background: Colors.red),
-        chipStyle: ChipStyle(notchSmoothness: NotchSmoothness.verySmoothEdge, background: const Color(0xFF2C2E7B)),
-      ),
-      /*BottomNavigationBar(
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        unselectedItemColor: Colors.grey,
-        selectedItemColor: Color(0xFF2c2e7b),
-        currentIndex: _currentIndex,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: context.locale!.app_base_menu_home,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.category),
-            label: context.locale!.app_base_menu_catalog,
-          ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: [
-                const Center(child: Icon(Icons.shopping_cart)),
-                if (cartItemsCount > 0)
-                  Positioned(
-                    top: 4.0,
-                    right: 15.0,
-                    child: ShoppingCartIconBadge(itemsCount: cartItemsCount),
-                  ),
-              ],
-            ),
-            label: context.locale!.app_base_menu_cart,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: context.locale!.app_base_menu_account,
-          ),
-        ],
-        onTap: (index) => _onItemTapped(context, index),
-      ),*/
+        chipStyle: ChipStyle( notchSmoothness: NotchSmoothness.verySmoothEdge, background: const Color(0xFF2C2E7B)),
+      )),
+
     );
   }
 }

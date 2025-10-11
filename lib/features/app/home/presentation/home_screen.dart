@@ -191,18 +191,18 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
                           title: ' ',
                         ),
                       ),
-                    if (selectedFilter == 'Most sold')
+                    if (selectedFilter == 'Most sold' && mostSoldProducts.hasValue)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: _buildProductListWidget(mostSoldProducts),
                       ),
 
-                    if (selectedFilter == 'New products')
+                    if (selectedFilter == 'New products' && newProducts.hasValue)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: _buildProductListWidget(newProducts),
                       ),
-                    if (selectedFilter == 'Discounts')
+                    if (selectedFilter == 'Discounts' && discountedProducts.hasValue)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: _buildProductListWidget(discountedProducts),

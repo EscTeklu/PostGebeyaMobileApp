@@ -61,16 +61,16 @@ class _DiscountBoxState extends ConsumerState<DiscountBox> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Expanded(
-                  flex: 5,
+                  flex: 6,
                   child: SizedBox(
-                    height: 30,
+                    height: 35,
                     child: TextField(
                       keyboardType: TextInputType.text,
                       autofocus: false,
@@ -90,7 +90,7 @@ class _DiscountBoxState extends ConsumerState<DiscountBox> {
                 ),
                 const Expanded(flex: 1, child: SizedBox()),
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: CustomFilledButton(
                     onPressed: () => _apply().then((value) => {
                           if ((value?.isNotEmpty ?? false) && context.mounted)

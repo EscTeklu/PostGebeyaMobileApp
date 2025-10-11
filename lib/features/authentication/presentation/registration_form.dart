@@ -69,7 +69,7 @@ class RegistrationFormState extends State<RegistrationForm> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate() && _acceptPrivacyPolicy && _gdprConsentAccepted) {
-      final url = 'https://ethiopostmall.africom.et/api-frontend/Customer/Register';
+      final url = 'https://dev.africom.et/api-frontend/Customer/Register';
       final headers = {
         'accept': 'application/json',
         'Authorization': 'eCJCgwPuhc3pwdW1uqet+jnpJ9pFdZrkwlUFzZkeb3A',

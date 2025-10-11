@@ -18,9 +18,27 @@ class CatalogScreen extends ConsumerWidget {
       backgroundColor: GlobalVariables.backgroundColor,
       appBar: AppBar(
         backgroundColor: GlobalVariables.accentColor,
-        title: Text(
-          context.locale!.catalog,
-          style: TextStyle(color: Colors.white),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(1),
+              child: Image.asset(
+                'assets/bottom_logo.png',
+                height: 40,
+                width: 100,
+                fit: BoxFit.contain,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 80),
+              child: Text(
+                context.locale!.catalog,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+
+          ],
         ),
         actions: const [ProductSearch()],
       ),

@@ -188,7 +188,7 @@ class AppTheme {
       //     overlayColor:
       //         MaterialStateProperty.all<Color>(colorScheme.primary)),
       inputDecorationTheme: const InputDecorationTheme(filled: true),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
           // color: colorScheme.background,
           // elevation: 0,
           // shape: RoundedRectangleBorder(

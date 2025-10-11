@@ -1,3 +1,4 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,6 +56,7 @@ class RegisterInfoContents extends ConsumerStatefulWidget {
 }
 
 class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
+  final _custAtr = TextEditingController();
   final _genderController = TextEditingController();
   final _dateInput = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -62,7 +64,7 @@ class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
 
   var _submitted = false;
   List<StateProvinceModelDtoBuilder>? availableStates;
-
+  ListBuilder<CustomerAttributeModelDto>? _customerAttributes;
   DateTime selectedDate = DateTime.now();
 
   RegisterModelDtoBuilder registerInfo = RegisterModelDtoBuilder();
@@ -204,7 +206,7 @@ class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
     final passwordMinLength = AppSettings.passwordMinLength;
 
     _genderController.text = widget.registerInfo.gender ?? '';
-
+    //showInSnackBar(context, registerInfo.customerAttributes.length.toString());
     const cardPadding = 15.0;
     final items = <Widget>[];
 
@@ -278,7 +280,7 @@ class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
                     required: true,
                   ),
                 ),
-                /* if (registerInfo.dateOfBirthEnabled ?? false)
+                 if (registerInfo.dateOfBirthEnabled ?? false)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: CustomerTextFormField(
@@ -292,7 +294,7 @@ class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
                       isDate: true,
                       onTap: () => _selectDate(context),
                     ),
-                  ), */
+                  ),
                 Container(
                   padding: const EdgeInsets.only(top: 10),
                   alignment: Alignment.centerLeft,
@@ -638,7 +640,55 @@ class _RegisterInfoState extends ConsumerState<RegisterInfoContents> {
         ),
       );
     }
+    //BAHU FOR CUSTOMERATTRIBUTES
+    if (registerInfo.customerAttributes.isNotEmpty){
 
+      for (int i = 0; i < registerInfo.customerAttributes.length; i++) {
+        final attr = registerInfo.customerAttributes[i];
+        final key = 'customer_attribute_${attr.id}';
+        items.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(cardPadding),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Additional Information',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: TextFormField(
+                            decoration: InputDecoration(labelText: attr.name ?? ''),
+                            validator: attr.isRequired == true
+                                ? (value) => value?.isEmpty == true ? 'Required' : null
+                                : null,
+                            onChanged: (value) => {
+                              setState(() {
+                                //_formKey = value as TextEditingValue;
+                                //registerInfo.customerAttributes.first = value as CustomerAttributeModelDto;
+                              })
+                              //_customerAttributes.add(value) = value as CustomerAttributeModelDtoBuilder
+                              //_formData[key] = value
+                            },
+                            initialValue: '',
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        );
+      }
+
+    }
     items.add(
       Padding(
         padding: const EdgeInsets.only(bottom: 8.0),

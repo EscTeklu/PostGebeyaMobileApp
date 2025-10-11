@@ -1121,18 +1121,18 @@ class _OrderTrackingBodyContentState extends State<OrderTrackingBodyContent> {
       ),
       TrackingEvent(
         timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 8)),
-        status: 'Processing at Warehouse',
-        location: 'Main Hub, AA',
+        status: ' ',//'Processing at Warehouse',
+        location: ' ',//'Main Hub, AA',
       ),
       TrackingEvent(
         timestamp: DateTime.now().subtract(const Duration(hours: 10)),
-        status: 'Out for Delivery',
-        location: 'Local Delivery Hub, AA',
+        status: ' ',//'Out for Delivery',
+        location: ' ',//'Local Delivery Hub, AA',
       ),
       TrackingEvent(
         timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-        status: 'Delivered',
-        location: 'Recipient Address',
+        status: ' ',//'Delivered',
+        location: ' ',//'Recipient Address',
       ),
     ];
     /*trackingEvents.add(TrackingEvent(

@@ -46,3 +46,6 @@ app.*.map.json
 /android/app/release
 lib/themes/nopCommerce/dist/styledictionary/node_modules/
 .vscode/
+
+# FVM Version Cache
+.fvm/

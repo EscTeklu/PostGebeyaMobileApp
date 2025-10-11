@@ -55,9 +55,13 @@ void registerErrorHandlers(ErrorLogger errorLogger) {
               fit: BoxFit.cover,
             ),
           ),
-          Center(child: Text(details.toString())),
-          Center(child: Text(details.exceptionAsString())),
-          Center(child: Text(details.stack.toString())),
+          //Center(child: Text(details.toString())),
+          //Center(child: Text(details.exceptionAsString())),
+          //Center(child: Text(details.stack.toString())),
+          Center(child: Text('SomeThing Wrong !!!, Please Try Again !!!', style: TextStyle(
+            fontSize: 22,
+            backgroundColor: Color(0xFFEC1A1A),
+          ),)),
         ],
       )
     );
