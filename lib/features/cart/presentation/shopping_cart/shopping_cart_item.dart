@@ -5,194 +5,216 @@ import 'package:frontend_api/frontend_api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_image.dart';
 import 'package:nopcommerce_mobile/common_widgets/quantity_selector_widget.dart';
-import 'package:nopcommerce_mobile/common_widgets/responsive_two_column_layout.dart';
-import 'package:nopcommerce_mobile/common_widgets/text_link.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/cart_providers.dart';
-import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
-import 'package:nopcommerce_mobile/utils/common_utility.dart';
 
 class ShoppingCartItem extends StatelessWidget {
-  const ShoppingCartItem(
-      {super.key,
-        required this.item,
-        required this.itemIndex,
-        required this.isEditable});
+  const ShoppingCartItem({
+    super.key,
+    required this.item,
+    required this.itemIndex,
+    required this.isEditable,
+  });
 
   final ShoppingCartItemModelDto item;
   final int itemIndex;
   final bool isEditable;
 
+  static const _blue = Color(0xFF2C2E7B);
+  static const _orange = Color(0xFFF5AD00);
+
   @override
   Widget build(BuildContext context) {
     String warnings = '';
     if (item.warnings?.isNotEmpty ?? false) {
-      item.warnings?.forEach((element) {
-        warnings = ('$warnings$element\n');
-      });
-      warnings.trimRight();
+      item.warnings?.forEach((e) => warnings = '$warnings$e\n');
+      warnings = warnings.trimRight();
     }
 
-    var theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 10, 15, 4),
-        child: ResponsiveTwoColumnLayout(
-          startFlex: 1,
-          endFlex: 3,
-          breakpoint: 100,
-          startContent: ClipRRect(
-            borderRadius: const BorderRadius.all(
-              Radius.circular(5),
-            ),
-            child: CustomImage(
-              url: item.picture?.imageUrl ?? "",
-            ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: _blue.withValues(alpha: 0.07),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
-          spacing: 20,
-          endContent: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 40),
-                        child: TextLink(
-                          label: item.productName ?? "",
-                          onTap: () => {
-                            context.goNamed(Routes.product.name,
-                                pathParameters: {
-                                  'id': item.productId.toString()
-                                })
-                          },
-                          textStyle: theme.textTheme.titleMedium!
-                              .copyWith(color: theme.colorScheme.primary),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (isEditable)
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: RemoveItemWidget(
-                        item: item,
-                        itemIndex: itemIndex,
-                      ),
-                    )
-                ],
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product image
+            GestureDetector(
+              onTap: () => context.goNamed(
+                Routes.product.name,
+                pathParameters: {'id': item.productId.toString()},
               ),
-              Row(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 88,
+                  height: 88,
+                  child: CustomImage(
+                    url: item.picture?.imageUrl ?? '',
+                    fit: BoxFit.cover,
+                    width: 88,
+                    height: 88,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+
+            // Details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (item.sku?.isNotEmpty ?? false)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 3,
+                  // Name row + delete
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => context.goNamed(
+                            Routes.product.name,
+                            pathParameters: {'id': item.productId.toString()},
+                          ),
+                          child: Text(
+                            item.productName ?? '',
+                            style: const TextStyle(
+                              color: _blue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        Text(
-                          context.locale!.cart_item_sku.format([item.sku]),
-                          style: const TextStyle(fontSize: 10.0),
-                        ),
-                        Text(
-                          context.locale!.cart_item_price
-                              .format([item.unitPrice]),
-                        ),
+                      ),
+                      if (isEditable) ...[
+                        const SizedBox(width: 6),
+                        RemoveItemWidget(item: item, itemIndex: itemIndex),
                       ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+
+                  // SKU
+                  if (item.sku?.isNotEmpty ?? false)
+                    Text(
+                      'SKU: ${item.sku}',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 11,
+                      ),
                     ),
-                ],
-              ),
-              if (item.rentalInfo?.isNotEmpty ?? false)
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 3,
-                      ),
-                      HtmlWidget(
-                        item.rentalInfo ?? '',
-                        textStyle: Theme.of(context).textTheme.bodyMedium,
-                        // shrinkWrap: true,
-                      ),
-                    ],
-                  ),
-                ),
-              if (item.attributeInfo?.isNotEmpty ?? false)
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 2,
-                      ),
-                      HtmlWidget(
-                        item.attributeInfo ?? '',
-                        textStyle: Theme.of(context).textTheme.bodyMedium,
-                        // shrinkWrap: true,
-                      ),
-                    ],
-                  ),
-                ),
-              /*Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Row(
-                  children: [
-                    isEditable
-                        ? EditItemWidget(
-                      item: item,
-                      itemIndex: itemIndex,
-                    )
-                        : Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Text(
-                        context.locale!.cart_item_quantity
-                            .format([item.quantity]),
+
+                  // Unit price
+                  if (item.unitPrice?.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.unitPrice ?? '',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
                       ),
                     ),
                   ],
-                ),
-              ),*/
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Row(
-                      children: [
-                        isEditable
-                            ? EditItemWidget(
-                          item: item,
-                          itemIndex: itemIndex,
-                        )
-                            : Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Text(
-                            context.locale!.cart_item_quantity
-                                .format([item.quantity]),
-                          ),
+
+                  // Attributes / rental info
+                  if (item.attributeInfo?.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 4),
+                    HtmlWidget(
+                      item.attributeInfo ?? '',
+                      textStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                  if (item.rentalInfo?.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 4),
+                    HtmlWidget(
+                      item.rentalInfo ?? '',
+                      textStyle: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 8),
+
+                  // Quantity + subtotal row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      isEditable
+                          ? EditItemWidget(item: item, itemIndex: itemIndex)
+                          : Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF4F5FB),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Qty: ${item.quantity}',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _blue,
+                                ),
+                              ),
+                            ),
+                      const Spacer(),
+                      Text(
+                        item.subTotal ?? '',
+                        style: const TextStyle(
+                          color: _orange,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Text(
-                      textAlign: TextAlign.end,
-                      item.subTotal!,
-                      style: theme.textTheme.headlineSmall!.copyWith(
-                        fontSize: 18,
-                          color: theme.colorScheme.onSurface,
-                          fontWeight: FontWeight.bold),
+
+                  // Warnings
+                  if (warnings.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Text(
+                        warnings,
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: 11,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -205,10 +227,10 @@ class EditItemWidget extends ConsumerWidget {
     required this.item,
     required this.itemIndex,
   });
+
   final ShoppingCartItemModelDto item;
   final int itemIndex;
 
-  // * Keys for testing using find.byKey()
   static Key deleteKey(int index) => Key('delete-$index');
 
   @override
@@ -221,8 +243,8 @@ class EditItemWidget extends ConsumerWidget {
       onChanged: state.isLoading
           ? null
           : (quantity) => ref
-          .read(shoppingCartControllerProvider.notifier)
-          .updateItemQuantity(item.id!, quantity),
+              .read(shoppingCartControllerProvider.notifier)
+              .updateItemQuantity(item.id!, quantity),
     );
   }
 }
@@ -233,30 +255,34 @@ class RemoveItemWidget extends ConsumerWidget {
     required this.item,
     required this.itemIndex,
   });
+
   final ShoppingCartItemModelDto item;
   final int itemIndex;
 
-  // * Keys for testing using find.byKey()
   static Key deleteKey(int index) => Key('delete-$index');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(shoppingCartControllerProvider);
-    return SizedBox(
-      width: 25,
-      height: 25,
-      child: IconButton(
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.all(0),
-        key: deleteKey(itemIndex),
-        icon: const Icon(Icons.delete),
-        onPressed: state.isLoading
-            ? null
-            : () {
-          ref
+    return GestureDetector(
+      key: deleteKey(itemIndex),
+      onTap: state.isLoading
+          ? null
+          : () => ref
               .read(shoppingCartControllerProvider.notifier)
-              .removeItemById(item.id!);
-        },
+              .removeItemById(item.id!),
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: Colors.red.shade50,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.close_rounded,
+          size: 16,
+          color: Colors.red.shade400,
+        ),
       ),
     );
   }

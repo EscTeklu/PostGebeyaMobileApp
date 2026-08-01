@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_api/frontend_api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_outlined_button.dart';
-import 'package:nopcommerce_mobile/common_widgets/custom_tonal_button.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:nopcommerce_mobile/utils/common_utility.dart';

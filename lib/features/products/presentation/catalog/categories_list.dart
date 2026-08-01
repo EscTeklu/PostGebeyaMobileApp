@@ -14,26 +14,23 @@ class CategoriesList extends StatelessWidget {
   Widget build(BuildContext context) {
     return AsyncValueWidget<BuiltList<CategorySimpleModelDto>?>(
       value: valueObj,
-      data:
-          (categories) =>
-              categories?.isEmpty ?? true
-                  ? Container()
-                  : CategoriesLayoutList(
-                    itemCount: categories!.length,
-                    itemBuilder: (_, index) {
-                      final category = categories[index];
-                      return CategoryListItem(
-                        categoryId: category.id!,
-                        categoryName: category.name,
-                        categoryPictureUrl: category.pictureModel?.imageUrl,
-                      );
-                    },
-                  ),
+      data: (categories) => categories?.isEmpty ?? true
+          ? const SizedBox.shrink()
+          : CategoriesLayoutList(
+              itemCount: categories!.length,
+              itemBuilder: (_, index) {
+                final category = categories[index];
+                return CategoryListItem(
+                  categoryId: category.id!,
+                  categoryName: category.name,
+                  categoryPictureUrl: category.pictureModel?.imageUrl,
+                );
+              },
+            ),
     );
   }
 }
 
-/// Grid widget with content-sized items.
 class CategoriesLayoutList extends StatelessWidget {
   const CategoriesLayoutList({
     super.key,
@@ -41,24 +38,20 @@ class CategoriesLayoutList extends StatelessWidget {
     required this.itemBuilder,
   });
 
-  /// Total number of items to display.
   final int itemCount;
-
-  /// Function used to build a widget for a given index in the grid.
   final Widget Function(BuildContext, int) itemBuilder;
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      controller: ScrollController(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        crossAxisSpacing: 1.0,
-        mainAxisSpacing: 1.0,
-        childAspectRatio: 1,
-        mainAxisExtent: 140,
-      ),
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        mainAxisExtent: 155,
+      ),
       itemCount: itemCount,
       itemBuilder: itemBuilder,
     );

@@ -152,7 +152,7 @@
     "app_page_not_found": "Error 404 - Page not found",
     "app_no_internet_connection": "No internet connection",
     "app_no_internet_connection_message": "Please check your internet connection and try again.",
-    "app_title": "nopCommerce mobile app",
+    "app_title": "PostGebeya mobile app",
     "app_validators_can_not_be_empty": "can't be empty",
     "app_validators_email_is_not_valid": "Email is not valid",
     "app_validators_must_be_at_least": "must be at least %s characters long",

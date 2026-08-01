@@ -15,7 +15,7 @@ class ProductRepository extends BaseRepository {
     await WebApiHelper.getApi((frontendApi) => frontendApi.getProductApi());
     final response = await api.apiFrontendProductHomePageProductsGet();*/
 
-    if (response.isNotEmpty) {
+    if (response.isNotEmpty && response.length > 1) {
       return response;
     }
 

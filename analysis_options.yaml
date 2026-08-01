@@ -43,9 +43,20 @@ linter:
     - unnecessary_getters_setters
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
-  analyzer:
-  strong-mode:
-    implicit-casts: false
-    implicit-dynamic: false
+
+analyzer:
+  # Skip generated and build-output files. Huge speedup for project open:
+  # frontend_api alone has 783 generated DTOs that don't need linting.
+  exclude:
+    - "lib/frontend_api/**"
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.gr.dart"
+    - "**/generated_plugin_registrant.dart"
+    - "build/**"
+    - ".dart_tool/**"
+    - "android/.cxx/**"
+    - "ios/Pods/**"
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

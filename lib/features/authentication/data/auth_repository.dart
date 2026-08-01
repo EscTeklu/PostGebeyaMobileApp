@@ -1,5 +1,6 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:nopcommerce_mobile/customize/util/secure_utils.dart';
 import 'package:nopcommerce_mobile/features/authentication/domain/nop_customer.dart';
 import 'package:nopcommerce_mobile/features/shared/base_repository.dart';
 import 'package:nopcommerce_mobile/features/shared/settings.dart';
@@ -20,23 +21,30 @@ class AuthenticateRepository extends BaseRepository {
 
   static Future _onTokenChanged(
       {String? token, int? customerId, String? email}) async {
-    const storage = FlutterSecureStorage();
+    //const storage = FlutterSecureStorage();
 
     if (token == null) {
       _authState.value = null;
-      await storage.delete(key: "user_id");
-      await storage.delete(key: "user_email");
+      /*await storage.delete(key: "user_id");
+      await storage.delete(key: "user_email");*/
+      await SecureStorageHelper.delete("user_id");
+      await SecureStorageHelper.delete("user_email");
     } else {
-      customerId ??= int.parse(await storage.read(key: "user_id") ?? "0");
-      email ??= await storage.read(key: "user_email");
+      customerId ??= int.parse(await SecureStorageHelper.readDecrypted("user_id")?? "0");
+      email ??= await SecureStorageHelper.readDecrypted("user_email");
+      //
 
       final nopCustomer = NopCustomer(
           uid: customerId, token: token, email: email, isGuest: email == null);
 
       _authState.value = nopCustomer;
-
-      await storage.write(key: "user_id", value: nopCustomer.uid.toString());
-      await storage.write(key: "user_email", value: nopCustomer.email);
+      //await storage.write(key: "user_id", value: nopCustomer.uid.toString());
+      //await storage.write(key: "user_email", value: nopCustomer.email);
+      await SecureStorageHelper.saveEncrypted("user_id", nopCustomer.uid.toString());
+      if (nopCustomer.email != null) {
+        await SecureStorageHelper.saveEncrypted("user_email", nopCustomer.email!);
+      }
+      //await SecureStorageHelper.saveEncrypted("user_email", em!);
     }
   }
   //
@@ -165,4 +173,17 @@ class AuthenticateRepository extends BaseRepository {
 
     await TokenHelper.reset();
   }
+  //
+
+  Future<String?> refreshAccessToken() async { final refreshToken = await SecureStorageHelper.readRefreshToken(); if (refreshToken == null) return null;
+    final api = await WebApiHelper.getApi((frontendApi) => frontendApi.getAuthenticateApi());
+    final response = await api.apiFrontendAuthenticateRefreshPost(refreshToken: refreshToken);
+    if (WebApiHelper.isApiCallValid(response)) {
+      final newAccessToken = response.data?.token;
+      final newRefreshToken = response.data?.token;
+      if (newAccessToken != null) {
+        await SecureStorageHelper.saveEncrypted("user_token", newAccessToken); }
+    if (newRefreshToken != null) {
+      await SecureStorageHelper.saveRefreshToken(newRefreshToken); }
+    return newAccessToken; } return null; }
 }

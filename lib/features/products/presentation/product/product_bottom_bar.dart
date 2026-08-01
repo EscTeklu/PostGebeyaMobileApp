@@ -3,14 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_api/frontend_api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/quantity_selector_widget.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/customize/widgets/checkout/checkout_modal.dart';
-import 'package:nopcommerce_mobile/features/app/repository_provider.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
-import 'package:nopcommerce_mobile/features/authentication/domain/nop_customer.dart';
-import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/add_to_card/add_to_cart_controller.dart';
-import 'package:nopcommerce_mobile/features/customer/data/customer_repository.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 
 class ProductBottomBar extends ConsumerWidget {
@@ -20,28 +15,34 @@ class ProductBottomBar extends ConsumerWidget {
     required this.addToCart,
     required this.isGuest,
   });
+
   final ProductDetailsModelDto product;
   final Function() addToCart;
   final bool isGuest;
+
+  static const _blue = Color(0xFF2C2E7B);
+  static const _orange = Color(0xFFF5AD00);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(addToCartControllerProvider);
-    final customerRepository =
-    ref.watch(getRepositoryProvider(() => CustomerRepository()));
-    late NopCustomer? user = ref.watch(authStateChangesProvider).value;
+
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+      decoration: const BoxDecoration(
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurfaceVariant.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, -1), // changes position of shadow
+            color: Color(0x1A2C2E7B),
+            blurRadius: 20,
+            offset: Offset(0, -4),
           ),
         ],
+      ),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        MediaQuery.of(context).padding.bottom + 12,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -49,298 +50,125 @@ class ProductBottomBar extends ConsumerWidget {
           if (product.addToCart?.minimumQuantityNotification?.isNotEmpty ??
               false)
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(product.addToCart?.minimumQuantityNotification ?? ""),
-                ],
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Text(
+                  product.addToCart?.minimumQuantityNotification ?? '',
+                  style: TextStyle(
+                    color: Colors.orange.shade800,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          /* Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                if ((product.displayBackInStockSubscription ?? false) == false)
-                  Flexible(
-                    flex: 1,
-                    fit: FlexFit.tight,
-                    child: QuantitySelector(
-                      quantity: state.value?.quantity ??
-                          product.addToCart!.enteredQuantity!,
-                      addToCart: product.addToCart,
-                      onChanged: state.isLoading
-                          ? null
-                          : (quantity) => ref
-                              .read(addToCartControllerProvider.notifier)
-                              .updateQuantity(quantity),
-                    ),
-                  ),
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: AddToCartWidget(
-                      addToCart: addToCart,
-                    ),
-                  ),
+          Row(
+            children: [
+              if (!(product.displayBackInStockSubscription ?? false)) ...[
+                QuantitySelector(
+                  quantity: state.value?.quantity ??
+                      product.addToCart!.enteredQuantity!,
+                  addToCart: product.addToCart,
+                  onChanged: state.isLoading
+                      ? null
+                      : (quantity) => ref
+                          .read(addToCartControllerProvider.notifier)
+                          .updateQuantity(quantity),
                 ),
+                const SizedBox(width: 10),
               ],
-            ),
-          ), */
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                if ((product.displayBackInStockSubscription ?? false) == false)
-                  Flexible(
-                    flex: 1,
-                    fit: FlexFit.tight,
-                    child: QuantitySelector(
-                      quantity:
-                          state.value?.quantity ??
-                          product.addToCart!.enteredQuantity!,
-                      addToCart: product.addToCart,
-                      onChanged:
-                          state.isLoading
-                              ? null
-                              : (quantity) => ref
-                                  .read(addToCartControllerProvider.notifier)
-                                  .updateQuantity(quantity),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: state.isLoading ? null : addToCart,
+                  icon: const Icon(Icons.shopping_cart_outlined, size: 18),
+                  label: const Text('Add to Cart'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _blue,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: _blue.withValues(alpha: 0.4),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 6, bottom: 9),
-                    child: ElevatedButton(
-                      onPressed: addToCart,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        backgroundColor: GlobalVariables.accentColor,
-                      ),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          'Add to Cart',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ), // You can set a base font size
-                        ),
-                      ),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                     ),
+                    elevation: 0,
                   ),
                 ),
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 9),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        //final user = ref.watch(authStateChangesProvider);
-                        print(isGuest);
-                          if(isGuest){
-                            showInSnackBar(context,"Is GUEST");
-                            final controller =
-                            ref.read(addToCartControllerProvider.notifier);
-                            await controller
-                                .addCartItemFromProduct(
-                              product.id!,
-                              product.addToCart?.enteredQuantity,
-                              ShoppingCartType.shoppingCart,
-                            )
-                                .then(
-                                  (addProductToCartResponse) => {
-
-                                //_fetchProductAttributes(),
-                              },
-                            );
-                            showDialog(
-                              context: context,
-                              builder: (_) => const CheckoutModal(),
-                            );
-                          }
-                        else{
-                          showInSnackBar(context,"Not GUEST");
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: state.isLoading
+                      ? null
+                      : () async {
                           final controller =
-                          ref.read(addToCartControllerProvider.notifier);
+                              ref.read(addToCartControllerProvider.notifier);
                           await controller
                               .addCartItemFromProduct(
                             product.id!,
                             product.addToCart?.enteredQuantity,
                             ShoppingCartType.shoppingCart,
                           )
-                              .then(
-                                (addProductToCartResponse) => {
+                              .then((response) {
+                            if (!context.mounted) {
+                              return;
+                            }
+                            if (isGuest) {
+                              showDialog(
+                                context: context,
+                                builder: (_) => const CheckoutModal(),
+                              );
+                            } else {
                               showInSnackBar(
                                 context,
-                                (addProductToCartResponse?.success ?? false)
-                                    ? 'Success'
-                                    : addProductToCartResponse?.errors
-                                    .toString() ??
-                                    "",
-                                color: (addProductToCartResponse?.success ??
-                                    false)
+                                (response?.success ?? false)
+                                    ? 'Added to cart!'
+                                    : response?.errors.toString() ?? '',
+                                color: (response?.success ?? false)
                                     ? Colors.green
                                     : Colors.red,
-                              ),
-                              (addProductToCartResponse?.success ?? true)
-                                  ? context.pushNamed(Routes.checkout.name)
-                                  : ''
-                              //_fetchProductAttributes(),
-                            },
-                          );
-                        }
-
-                        /**/
-
-
-                        /*final user = ref.watch(authStateChangesProvider).value;
-                        final controller = ref.read(
-                          addToCartControllerProvider.notifier,
-                        );
-                        (user?.isGuest ?? true)
-                            ? showDialog(
-                          context: context,
-                          builder: (_) => const CheckoutModal(),
-                        )
-                            : await controller
-                            .addCartItemFromProduct(
-                              product.id!,
-                              product.addToCart?.enteredQuantity,
-                              ShoppingCartType.shoppingCart,
-                            )
-                            .then(
-                              (addProductToCartResponse) => {
-                                showInSnackBar(
-                                  context,
-                                  (addProductToCartResponse?.success ?? false)
-                                      ? context.locale!.product_add_to_card
-                                      : addProductToCartResponse?.errors
-                                              .toString() ??
-                                          "",
-                                  color:
-                                      (addProductToCartResponse?.success ??
-                                              false)
-                                          ? Colors.green
-                                          : Colors.red,
-                                ),
-                                (addProductToCartResponse?.success ?? true)
-                                    ? context.pushNamed(Routes.checkout.name)
-                                    : '',
-                                //_fetchProductAttributes(),
-                              },
-                            );*/
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: GlobalVariables.secondaryColor,
-                      ),
-                      child: const Text(
-                        'Buy Now',
-                        style: TextStyle(color: Colors.black),
-                      ),
+                              );
+                              if ((response?.success ?? false) &&
+                                  context.mounted) {
+                                context.pushNamed(Routes.checkout.name);
+                              }
+                            }
+                          });
+                        },
+                  icon: const Icon(Icons.flash_on_rounded, size: 18),
+                  label: const Text('Buy Now'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _orange,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: _orange.withValues(alpha: 0.4),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    elevation: 0,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 }
-
-/* import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:frontend_api/frontend_api.dart';
-import 'package:nopcommerce_mobile/common_widgets/quantity_selector_widget.dart';
-import 'package:nopcommerce_mobile/features/cart/presentation/add_to_card/add_to_cart_widget.dart';
-import 'package:nopcommerce_mobile/features/cart/presentation/add_to_card/add_to_cart_controller.dart';
-
-class ProductBottomBar extends ConsumerWidget {
-  const ProductBottomBar({
-    super.key,
-    required this.product,
-    required this.addToCart,
-  });
-  final ProductDetailsModelDto product;
-  final Function() addToCart;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(addToCartControllerProvider);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color:
-                Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, -1), // changes position of shadow
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (product.addToCart?.minimumQuantityNotification?.isNotEmpty ??
-              false)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(product.addToCart?.minimumQuantityNotification ?? ""),
-                ],
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                if ((product.displayBackInStockSubscription ?? false) == false)
-                  Flexible(
-                    flex: 1,
-                    fit: FlexFit.tight,
-                    child: QuantitySelector(
-                      quantity: state.value?.quantity ??
-                          product.addToCart!.enteredQuantity!,
-                      addToCart: product.addToCart,
-                      onChanged: state.isLoading
-                          ? null
-                          : (quantity) => ref
-                              .read(addToCartControllerProvider.notifier)
-                              .updateQuantity(quantity),
-                    ),
-                  ),
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.tight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: AddToCartWidget(
-                      addToCart: addToCart,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-} */

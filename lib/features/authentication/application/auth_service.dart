@@ -17,10 +17,13 @@ class AuthenticationService {
         .loginOTP(phone: phone, token: token, userId: userId);
   }
 
-  Future<void> authenticate(String email, String password) {
-    return ref
+  Future<void> authenticate(String email, String password) async {
+    final success = await ref
         .read(authRepositoryProvider)
         .login(email: email, password: password);
+    if (!success) {
+      throw Exception('Invalid email or password. Please try again.');
+    }
   }
 
   Future<void> register(RegisterModelDtoBuilder? model) {

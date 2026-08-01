@@ -7,15 +7,17 @@ extension AsyncValueUI on AsyncValue {
   void showAlertDialogOnError(BuildContext context) {
     if (!isRefreshing && hasError) {
       String? errorMsg;
-      final data = (error as DioException).response?.data;
 
-      if (data != null) {
-        if (data is List) {
-          errorMsg = data[0].toString();
-        } else if (data is Map) {
-          errorMsg = data['message'].toString();
-        } else {
-          errorMsg = data.toString();
+      if (error is DioException) {
+        final data = (error as DioException).response?.data;
+        if (data != null) {
+          if (data is List) {
+            errorMsg = data[0].toString();
+          } else if (data is Map) {
+            errorMsg = data['message']?.toString() ?? data.toString();
+          } else {
+            errorMsg = data.toString();
+          }
         }
       }
 

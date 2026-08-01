@@ -248,12 +248,13 @@ class _AccociatedProductCardState extends ConsumerState<AccociatedProductCard> {
                     flex: 5,
                     fit: FlexFit.tight,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(25, 0, 10, 0),
+                      padding: const EdgeInsets.fromLTRB(25, 0, 10, 5),
                       child: AddToCartWidget(
                         addToCart: state.isLoading ? null : addToCart,
                       ),
                     ),
                   ),
+                  //SizedBox(height: 20,)
                 ],
               ),
             ),

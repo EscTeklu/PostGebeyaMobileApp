@@ -24,19 +24,15 @@ class _ScaffoldWithBottomNavBarState
     extends ConsumerState<ScaffoldWithBottomNavBar> {
   static final tabs = ['/home', '/catalog', '/cart', '/account'];
 
-  // getter that computes the current index from the current location,
   int get _currentIndex => _locationToTabIndex(widget.goRouterState.uri.path);
 
   int _locationToTabIndex(String location) {
     final index = tabs.indexWhere((t) => location.startsWith(t));
-    // if index not found (-1), return 0
     return index < 0 ? 0 : index;
   }
 
-  // callback used to navigate to the desired tab
   void _onItemTapped(BuildContext context, int tabIndex) {
     if (tabIndex != _currentIndex) {
-      // go to the initial location of the selected tab (by index)
       context.go(tabs[tabIndex]);
     }
   }
@@ -44,7 +40,8 @@ class _ScaffoldWithBottomNavBarState
   @override
   Widget build(BuildContext context) {
     final cartItemsCount = ref.watch(cartItemsCountProvider);
-    List<TabItem> items = [
+
+    final items = [
       TabItem(
         icon: Icons.home,
         title: context.locale!.app_base_menu_home,
@@ -54,37 +51,27 @@ class _ScaffoldWithBottomNavBarState
         title: context.locale!.app_base_menu_catalog,
       ),
       TabItem(
-        icon: Icons.shopping_cart,/*Stack(
-          children: [
-            const Center(child: Icon(Icons.shopping_cart)),
-            if (cartItemsCount > 0)
-              Positioned(
-                top: 4.0,
-                right: 15.0,
-                child: ShoppingCartIconBadge(itemsCount: cartItemsCount),
-              ),
-          ],
-        ),*/
-        count: Container(
-          padding: EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(2.9),
-            child: Text(cartItemsCount.toString() ?? '0',
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: Colors.white),
-            ),
-          ),
-        ),
+        icon: Icons.shopping_cart,
+        count: cartItemsCount > 0
+            ? Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(2.9),
+                  child: Text(
+                    cartItemsCount.toString(),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                ),
+              )
+            : null,
         title: context.locale!.app_base_menu_cart,
       ),
-      /*TabItem(
-        icon: Icons.receipt_long_rounded,
-        title: 'Orders',
-      ),*/
       TabItem(
         icon: Icons.account_circle,
         title: context.locale!.app_base_menu_account,
@@ -92,33 +79,56 @@ class _ScaffoldWithBottomNavBarState
     ];
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBody: true,
-      body: widget.child,
-      bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(bottom: 0),
-         child:  BottomBarInspiredOutside(
-        items: items,
-        backgroundColor: const Color(0xFF2C2E7B),
-        color: Colors.white,
-        colorSelected: Colors.white,
-        height: 42,
-        iconSize: 22,
-        elevation: 0,
-        padTop: 8,
-        padbottom: 8,
-        titleStyle: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w800,
-          color: Colors.white,
-        ),
-        indexSelected: _currentIndex,
-        onTap: (index) => _onItemTapped(context, index),
-        itemStyle: ItemStyle.circle,
-        countStyle: CountStyle(background: Colors.red),
-        chipStyle: ChipStyle( notchSmoothness: NotchSmoothness.verySmoothEdge, background: const Color(0xFF2C2E7B)),
-      )),
-
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Extra bottom padding so every page's scroll view / SafeArea
+          // automatically clears the floating navbar (bar ~61 px + 20 px gap).
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              padding: MediaQuery.of(context).padding.copyWith(
+                bottom: MediaQuery.of(context).padding.bottom + 68,
+              ),
+            ),
+            child: widget.child,
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 32),
+                BottomBarInspiredOutside(
+                  items: items,
+                  backgroundColor: const Color(0xFF2C2E7B),
+                  color: Colors.white60,
+                  colorSelected: Colors.white,
+                  height: 36,
+                  iconSize: 18,
+                  elevation: 8,
+                  padTop: 6,
+                  padbottom: 2,
+                  titleStyle: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                  indexSelected: _currentIndex,
+                  onTap: (index) => _onItemTapped(context, index),
+                  itemStyle: ItemStyle.circle,
+                  countStyle: CountStyle(background: Colors.red),
+                  chipStyle: ChipStyle(
+                    notchSmoothness: NotchSmoothness.verySmoothEdge,
+                    background: const Color(0xFFF5AD00),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

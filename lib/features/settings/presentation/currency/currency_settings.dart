@@ -32,18 +32,7 @@ class _SettingsScreenState extends ConsumerState<CurrencySettings> {
       (_, state) => state.showAlertDialogOnError(context),
     );
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.locale!.settings_currency,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 6),
-            Container(
+    return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: Colors.grey.withOpacity(0.2),
@@ -100,10 +89,6 @@ class _SettingsScreenState extends ConsumerState<CurrencySettings> {
                   },
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -87,11 +87,11 @@ class ProductsLayoutLine extends StatelessWidget {
             shrinkWrap: true,
             physics: const ScrollPhysics(),
             itemCount: itemCount,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 1.0,
-              mainAxisSpacing: 1.0,
-              childAspectRatio: 0.72,
+              crossAxisSpacing: 8.0,
+              mainAxisSpacing: 8.0,
+              childAspectRatio: 0.62,
             ),
             itemBuilder: itemBuilder,
           ),
@@ -101,87 +101,3 @@ class ProductsLayoutLine extends StatelessWidget {
   }
 }
 
-/* class ProductsLine extends ConsumerWidget {
-  const ProductsLine({required this.valueObj, this.title, super.key});
-
-  final AsyncValue<BuiltList<ProductOverviewModelDto>?> valueObj;
-  final String? title;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TextStyle titleFontStyle = Theme.of(
-      context,
-    ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold);
-
-    return AsyncValueWidget<BuiltList<ProductOverviewModelDto>?>(
-      value: valueObj,
-      data:
-          (products) =>
-              products?.isEmpty ?? true
-                  ? Container()
-                  : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (title?.isNotEmpty ?? false)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: Text(title!, style: titleFontStyle),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: ProductsLayoutGrid(
-                          itemCount: products!.length,
-                          itemBuilder: (_, index) {
-                            final product = products[index];
-                            return ProductCard(
-                              width: 150,
-                              product: product,
-                              onPressed:
-                                  () => context.goNamed(
-                                    Routes.product.name,
-                                    pathParameters: {
-                                      'id': product.id!.toString(),
-                                    },
-                                  ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-    );
-  }
-}
-
-/// Grid widget with content-sized items.
-class ProductsLayoutLine extends StatelessWidget {
-  const ProductsLayoutLine({
-    super.key,
-    required this.itemCount,
-    required this.itemBuilder,
-  });
-
-  /// Total number of items to display.
-  final int itemCount;
-
-  /// Function used to build a widget for a given index in the grid.
-  final Widget Function(BuildContext, int) itemBuilder;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 230,
-          child: ListView.builder(
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: itemCount,
-            itemBuilder: itemBuilder,
-          ),
-        ),
-      ],
-    );
-  }
-} */

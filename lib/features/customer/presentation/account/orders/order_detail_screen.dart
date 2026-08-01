@@ -8,7 +8,7 @@ import 'package:nopcommerce_mobile/common_widgets/custom_outlined_button.dart';
 import 'package:nopcommerce_mobile/common_widgets/responsive_scrollable.dart';
 import 'package:nopcommerce_mobile/common_widgets/text_link.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
-import 'package:nopcommerce_mobile/customize/screens/payment_webview_screen.dart';
+import 'package:nopcommerce_mobile/customize/screens/payment_webview_screen.dart' show CybersourcePayment;
 import 'package:nopcommerce_mobile/customize/services/payment_service.dart';
 import 'package:nopcommerce_mobile/features/address/presentation/address_card.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
@@ -880,9 +880,11 @@ class _OrderDetailsState extends ConsumerState<OrderDetailsContents> {
           context: context,
           builder:
               (context) =>
-              PaymentWebViewScreen(url: resp.paymentUrl,
-                  orderId: resp.orderId,
-                  paymentService: paymentService),
+              CybersourcePayment(
+                urlWeb: resp.paymentUrl,
+                orderId: resp.orderId,
+                paymentService: paymentService,
+              ),
         );
         if (result == true) {
           ref.refresh(shoppingCartFutureProvider.future).then(

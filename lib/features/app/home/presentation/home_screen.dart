@@ -1,4 +1,7 @@
 
+import 'dart:math';
+import 'package:nopcommerce_mobile/common_widgets/skeleton_loaders.dart';
+
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,11 +9,15 @@ import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/async_value.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_icon_button.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_image.dart';
-import 'package:nopcommerce_mobile/common_widgets/text_link.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
+import 'package:nopcommerce_mobile/customize/models/banner_model.dart';
 import 'package:nopcommerce_mobile/customize/models/product_model.dart';
 import 'package:nopcommerce_mobile/customize/services/api_service.dart';
+import 'package:nopcommerce_mobile/customize/services/slide_api_service.dart';
+import 'package:nopcommerce_mobile/customize/widgets/custom_carousel.dart';
+import 'package:nopcommerce_mobile/customize/widgets/custom_middle_carousel.dart';
 import 'package:nopcommerce_mobile/customize/widgets/slides_carousel.dart';
+import 'package:nopcommerce_mobile/features/app/home/noon_layout/widgets/single_image_offer.dart';
 import 'package:nopcommerce_mobile/features/app/home/noon_layout/widgets/top_categories.dart';
 import 'package:nopcommerce_mobile/features/app/locale/app_locale_provider.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
@@ -36,8 +43,13 @@ class HomePageScreen extends ConsumerStatefulWidget {
 }
 
 class _HomePageScreen extends ConsumerState<HomePageScreen> {
+  //added for Sliders
+  final ApiServiceSlider _apiServiceSlider = ApiServiceSlider();
+  List<BannerCarousel>? carousels;
+  String? error;
+  //end for sliders
   //added for MostSold, NewProducts, Discount
-  final ApiService apiService = ApiService();
+  //final ApiService apiService = ApiService();
   //late Future<List<Product>> mostSoldProducts;
   late AsyncValue<List<Product>?> mostSoldProducts;
   late AsyncValue<List<Product>?> discountedProducts;
@@ -49,22 +61,45 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
   late AsyncValue<BuiltList<CategorySimpleModelDto>?> categoriesListValue;
 
   //
+
+  /*Future<void> checkConnection() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.mobile) {
+      print("Connected to Mobile Network");
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      print("Connected to WiFi");
+    } else {
+      print("No Network Connection");
+    }
+  }*/
+
+  //
+  /*@override
+  void initState() {
+    super.initState();
+    _loadSliders();
+  }*/
+
   Widget _buildProductListWidget(AsyncValue<List<Product>?> valueObj) {
     return AsyncValueWidget<List<Product>?>(
       value: valueObj,
       data:
           (products) =>
       products?.isEmpty ?? true
-          ? Container()
+          ? Text(
+            "No Product Found",
+            //style: titleFontStyle,
+          )
           : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /*if (title?.isNotEmpty ?? false)
+          /*if (products!.length > 1)
             Padding(
               padding: const EdgeInsets.only(left: 10),
               child: Text(
-                title!,
-                style: titleFontStyle,
+                "No Items Found",
+                //style: titleFontStyle,
               ),
             ),*/
           Padding(
@@ -73,15 +108,12 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
               itemCount: products!.length,
               itemBuilder: (_, index) {
                 final producto = products[index];
-                return ProductCardo(
+                return ProductCard2(
                   width: 195,
                   product: producto,
-                  onPressed:
-                      () => context.pushNamed(
+                  onPressed: () => context.pushNamed(
                     Routes.product.name,
-                    pathParameters: {
-                      'id': producto.id.toString(),
-                    },
+                    pathParameters: {'id': producto.id.toString()},
                   ),
                 );
               },
@@ -98,16 +130,32 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
       selectedFilter = filter;
     });
   }
+  //added for slider
 
+  Future<void> _loadSliders() async {
+    try {
+      final data = await _apiServiceSlider.getSliders();
+      setState(() {
+        carousels = data;
+        error = null;
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        carousels = null;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
-
+     // _loadSliders();
     //final homePageSliderImages = ref.watch(homePageSliderImagesFutureProvider);
     productsListValue = ref.watch(homePageProductsListFutureProvider);
     categoriesListValue = ref.watch(categoriesListFutureProvider);
     mostSoldProducts = ref.watch(mostSoldProductsListFutureProvider);
     newProducts = ref.watch(newProductsListFutureProvider);
     discountedProducts = ref.watch(discountProductsListFutureProvider);
+
 
     //print("MOST SOLD : $mostSoldProducts");
     return Scaffold(
@@ -147,9 +195,6 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
               margin: const EdgeInsets.only(right: 8),
             ),
             LanguageSelectorDropdown(), // ← neatly fitted here
-            //const Icon(Icons.shopping_cart, color: Colors.green),
-
-            //const Text('0'),
           ],
         ),
       ),
@@ -163,8 +208,13 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
           ),
           RefreshIndicator(
             onRefresh: () {
+              ref.invalidate(categoriesListFutureProvider);
+              ref.invalidate(categoryProductMapProvider);
               ref.invalidate(homePageProductsListFutureProvider);
-              return ref.refresh(homePageCategoriesListFutureProvider.future);
+              ref.invalidate(mostSoldProductsListFutureProvider);
+              ref.invalidate(newProductsListFutureProvider);
+              ref.invalidate(discountProductsListFutureProvider);
+              return ref.refresh(categoryProductMapProvider.future);
             },
             child: ListView(
               controller: ScrollController(),
@@ -172,18 +222,42 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
 
                 Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: SlidesCarousel(),
-                    ),
-                    //const CarouselImage(),//
-                    //HomePageSlider(homePageSliderImages),
-                    //Text(user.toString(), style: TextStyle(backgroundColor: Colors.white),),
-                    //ProductGridScreen(),
-                    TopCategories(categoriesListValue),
+                    if (categoriesListValue.isLoading)
+                      const HomeTopSkeleton()
+                    else ...[
+                      //if(carousels != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0),
+                        child: CustomCarouselSlider(),
+                      ),
+                      TopCategories(categoriesListValue),
+                      FilterRow(onFilterSelected: updateProductList),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical:5),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //if(carousels != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 0),
+                                child: CustomCarouselMiddleSlider(),
+                              ),
+                            /*SingleImageOffer(
+                              headTitle: 'EthioCommerce Market | ',
+                              subTitle: 'Extra up to Br. 2000 off with coupons',
+                              image: "https://postgebeya.ethio.post/images/thumbs/0002247_web%20banner1-100%20(3).jpeg",
+                              productCategory:'Unnamed',
+                            ),*/
+                          ],
+                        ),
+                      ),
 
-                    FilterRow(onFilterSelected: updateProductList),
+                    ],
                     if (selectedFilter == 'All')
+                      const CategoryProductGrid(),
+                    if (selectedFilter == 'Trending')
+                      //const CategoryProductGrid(),
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: ProductsLine(
@@ -191,24 +265,25 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
                           title: ' ',
                         ),
                       ),
-                    if (selectedFilter == 'Most sold' && mostSoldProducts.hasValue)
+                    if (selectedFilter == 'Bestsellers' && mostSoldProducts.hasValue)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: _buildProductListWidget(mostSoldProducts),
                       ),
 
-                    if (selectedFilter == 'New products' && newProducts.hasValue)
+                    if (selectedFilter == 'Newest' && newProducts.hasValue)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: _buildProductListWidget(newProducts),
                       ),
-                    if (selectedFilter == 'Discounts' && discountedProducts.hasValue)
+                    if (selectedFilter == 'Cheapest' && discountedProducts.hasValue)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
                         child: _buildProductListWidget(discountedProducts),
                       ),
                     const SizedBox(height: 6),
-                    const CategoryProductGrid(),
+                    //const CategoryProductGrid(),
+                    const SizedBox(height: 60),
                   ],
                 ),
               ],
@@ -224,171 +299,160 @@ class _HomePageScreen extends ConsumerState<HomePageScreen> {
 class CategoryProductGrid extends ConsumerWidget {
   const CategoryProductGrid({super.key});
 
-  Future<Map<CategorySimpleModelDto, List<ProductOverviewModelDto>>>
-  fetchProductsByCategory(WidgetRef ref) async {
-    final catalogRepository = ref.read(catalogRepositoryProvider);
-    final allCategories = await catalogRepository.fetchAllCategoriesList();
-
-    Map<CategorySimpleModelDto, List<ProductOverviewModelDto>>
-    categoryProductMap = {};
-
-    for (var category in allCategories!) {
-      final result = await catalogRepository.getProductsById(
-        categoryId: category.id!,
-      );
-      final products =
-          result?.catalogProductsModel?.products?.toList() ??
-          <ProductOverviewModelDto>[];
-      categoryProductMap[category] = products;
-    }
-
-    return categoryProductMap;
-  }
-  //
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder<
-      Map<CategorySimpleModelDto, List<ProductOverviewModelDto>>
-    >(
-      future: fetchProductsByCategory(ref),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        } else if (snapshot.hasError) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text('Error: ${snapshot.error}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, backgroundColor: Colors.white),),
-          );
-        }
+    final categoryMapAsync = ref.watch(categoryProductMapProvider);
 
-        final categoryMap = snapshot.data!;
+    return categoryMapAsync.when(
+      loading: () => const ProductSectionSkeleton(),
+      error: (_, __) => const Padding(
+        padding: EdgeInsets.all(16),
+        child: Icon(Icons.wifi_off_rounded, size: 48, color: Colors.blue),
+      ),
+      data: (categoryMap) {
+        final entries = categoryMap.entries.toList();
+        final midIndex = entries.length ~/ 2;
         return Column(
-          children:
-              categoryMap.entries.map((entry) {
-                final category = entry.key;
-                final products = entry.value;
+          children: entries.asMap().entries.map((indexedEntry) {
+                final index = indexedEntry.key;
+                final category = indexedEntry.value.key;
+                final products = indexedEntry.value.value;
+
+                final showBanner = category.pictureModel?.imageUrl != null &&
+                    (index == 0 || index == midIndex);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 5),
-                    if (category.pictureModel?.imageUrl != null)
+                    SizedBox(height: 0),
+                    if (showBanner)
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10,vertical:5),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            //DealOfTheDay(),
                             /*SingleImageOffer(
                               headTitle: 'EthioCommerce Market | ',
                               subTitle: 'Extra up to Br. 2000 off with coupons',
-                              image: category.pictureModel!.imageUrl!,
+                              image: "https://postgebeya.ethio.post/images/thumbs/0002247_web%20banner1-100%20(3).jpeg",
                               productCategory: category.name ?? 'Unnamed',
                             ),*/
-                            //SizedBox.square(dimension: 8)
                           ],
                         ),
                       ),
-                    if(products.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      child: Card(
-                        color: Colors.white,
-                        child: Row(
-                          children: [
-                            if (category.pictureModel?.imageUrl != null)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: Image.network(
-                                    category.pictureModel!.imageUrl!,
-                                    width: 40,
-                                    height: 40,
-                                    fit: BoxFit.cover,
+                    if (products.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF2C2E7B), Color(0xFF3A3D9E)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x302C2E7B),
+                                blurRadius: 8,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF5AD00),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  category.name ?? 'Unnamed',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.3,
                                   ),
                                 ),
                               ),
-                            Expanded(
-                              child: Text(
-                                category.name ?? 'Unnamed',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    backgroundColor: Colors.white
+                              GestureDetector(
+                                onTap: () => context.pushNamed(
+                                  Routes.category.name,
+                                  pathParameters: {'id': category.id.toString()},
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF5AD00),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'See All',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: Colors.white,
+                                        size: 10,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            Row(
-                              children: [
-                                TextLink(
-                                  label: "View All",
-                                  onTap:
-                                      () => {
-                                    context.pushNamed(
-                                      Routes.category.name,
-                                      pathParameters: {
-                                        'id': category.id.toString(),
-                                      },
-                                    ),
-                                  },
-                                  textStyle: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium!.copyWith(
-                                    backgroundColor: Colors.white,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                                /* Text(
-                                  'View All',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.blueAccent,
-                                  ),
-                                ), */
-                                Icon(
-                                  Icons.more_vert,
-                                  size: 16,
-                                  color: Colors.black,
-                                ), // Changed to a more common "see all" icon
-                              ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
-                    SizedBox(
-                      height: products.isNotEmpty ? 270: 0, // Increased height to prevent ProductCard overflow (was 200)
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          final product = products[index];
-                          final price = product.productPrice?.price ?? 'N/A';
-                          final rating =
-                              product.reviewOverviewModel!.totalReviews ?? 0.0;
-
-                          return ProductCard(
-                            width: 150,
-                            product: product,
-                            onPressed:
-                                () => context.pushNamed(
-                                  Routes.product.name,
-                                  pathParameters: {
-                                    'id': product.id!.toString(),
-                                  },
+                    if (products.isNotEmpty)
+                      Builder(builder: (context) {
+                        final screenWidth = MediaQuery.of(context).size.width;
+                        // Show 2 full cards + peek of 3rd (≈30% visible)
+                        final cardWidth = (screenWidth - 32) / 2.25;
+                        // image is 1:1 ratio + 120px for name/price/button
+                        final cardHeight = cardWidth + 120;
+                        return SizedBox(
+                          height: cardHeight,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            clipBehavior: Clip.none,
+                            itemCount: products.length,
+                            itemBuilder: (context, i) {
+                              final product = products[i];
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  right: i < products.length - 1 ? 10 : 0,
                                 ),
-                          );
-                        },
-                      ),
-                    ),
+                                child: ProductCard(
+                                  width: cardWidth,
+                                  product: product,
+                                  onPressed: () => context.pushNamed(
+                                    Routes.product.name,
+                                    pathParameters: {'id': product.id!.toString()},
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      }),
                   ],
                 );
               }).toList(),
@@ -397,7 +461,7 @@ class CategoryProductGrid extends ConsumerWidget {
     );
   }
 }
-//
+
 class LanguageSelectorDropdown extends ConsumerStatefulWidget {
   const LanguageSelectorDropdown({super.key});
 
@@ -476,192 +540,6 @@ class _LanguageSelectorDropdownState
 }
 
 //
-
-/*class CategorySection extends StatelessWidget {
-  final String title;
-  final List<ProductCardScroll> products;
-
-  const CategorySection({
-    super.key,
-    required this.title,
-    required this.products,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Row(
-                children: const [
-                  Text('See All', style: TextStyle(color: Colors.blue)),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ), // Changed to a more common "see all" icon
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height:
-              270, // Increased height to prevent ProductCard overflow (was 200)
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: products.length,
-            itemBuilder: (BuildContext context, int index) => products[index],
-          ),
-        ),
-      ],
-    );
-  }
-}*/
-
-class ProductCardScroll extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final double rating;
-  final String price;
-  final bool isNew;
-
-  const ProductCardScroll({
-    super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.rating,
-    required this.price,
-    this.isNew = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 150,
-      margin: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(51), // withAlpha is correct
-            blurRadius: 5,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // Align content to start
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                // Added ClipRRect to round corners of the image
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(10),
-                ),
-                child: Image.network(
-                  imageUrl,
-                  height: 120,
-                  width: double.infinity, // Ensure image fills width
-                  fit: BoxFit.cover,
-                ),
-              ),
-              if (isNew)
-                const Positioned(
-                  top: 5,
-                  left: 5,
-                  child: Chip(
-                    // Use Chip for "New" label for better visual
-                    label: Text(
-                      'NEW',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    backgroundColor: Colors.green,
-                    materialTapTargetSize:
-                        MaterialTapTargetSize
-                            .shrinkWrap, // Shrink tap target size
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
-              const Positioned(
-                top: 5,
-                right: 5,
-                child: Icon(Icons.favorite_border, color: Colors.pink),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 2, // Limit lines for name
-                  overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: List<Widget>.generate(
-                    5,
-                    (int index) => Icon(
-                      index < rating ? Icons.star : Icons.star_border,
-                      color:
-                          Colors
-                              .amber, // Changed to amber for typical star color
-                      size: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Instead of Spacer and Align, use a Row with Spacer for alignment within its own space
-          const Expanded(
-            // Allow the rest of the content to fill available space
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: EdgeInsets.only(right: 8.0, bottom: 8.0),
-                child: Icon(Icons.add_circle, color: Colors.green),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 //PRODUCT FILTER
 class FilterRow extends StatefulWidget {
   final Function(String) onFilterSelected;
@@ -677,9 +555,10 @@ class _FilterRowState extends State<FilterRow> {
 
   final List<Map<String, dynamic>> filters = [
     {'label': 'All', 'icon': Icons.list},
-    {'label': 'Most sold', 'icon': Icons.trending_up},
-    {'label': 'New products', 'icon': Icons.new_releases},
-    {'label': 'Discounts', 'icon': Icons.local_offer},
+    {'label': 'Trending', 'icon': Icons.trending_up_outlined},
+    {'label': 'Bestsellers', 'icon': Icons.trending_up},
+    {'label': 'Newest', 'icon': Icons.new_releases},
+    {'label': 'Cheapest', 'icon': Icons.local_offer},
   ];
 
   @override
@@ -803,45 +682,6 @@ class _ProductCardoState extends ConsumerState<ProductCardo> {
     const double borderRadius = 12;
     var cardwidth = widget.width ?? MediaQuery.of(context).size.width / 2;
 
-    var productPicture = Stack(
-      children: [
-        CustomImage(url: widget.product.pictureModels.first.imageUrl ?? ""),
-        if (widget.product.markAsNew ?? false) ...[
-          Container(
-            margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.secondary.withOpacity(0.6),
-                  offset: const Offset(1, 1),
-                  blurRadius: 0.5,
-                ),
-              ],
-              borderRadius: const BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-              child: Text(
-                context.locale!.product_new_product_label,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onTertiaryContainer,
-                ),
-              ),
-            ),
-          ),
-        ],
-        Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(Icons.favorite_outline_sharp, color: Color(0xffEC692F)),
-          ),
-        ),
-      ],
-    );
 
     return SizedBox(
       width: cardwidth,
@@ -849,7 +689,7 @@ class _ProductCardoState extends ConsumerState<ProductCardo> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: StyleDictionary.mdSysColorPrimary.withOpacity(0.1),
+            color: StyleDictionary.mdSysColorPrimary.withOpacity(0.2),
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
@@ -857,7 +697,7 @@ class _ProductCardoState extends ConsumerState<ProductCardo> {
             child: Padding(
               padding: const EdgeInsets.all(6.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Product Image
                   Expanded(
@@ -866,7 +706,7 @@ class _ProductCardoState extends ConsumerState<ProductCardo> {
                       borderRadius: BorderRadius.circular(borderRadius),
                       child: Container(
                         color: Colors.white,
-                        child: productPicture,
+                        child: CustomImage(url: widget.product.pictureModels.first.imageUrl ?? ""),
                       ),
                     ),
                   ),
@@ -1062,4 +902,214 @@ class ProductCardPrico extends StatelessWidget {
       return const SizedBox.shrink();
     }
     }
+}
+
+class ColorLoader3 extends StatefulWidget {
+  final double radius;
+  final double dotRadius;
+
+  ColorLoader3({this.radius = 30.0, this.dotRadius = 3.0});
+
+  @override
+  _ColorLoader3State createState() => _ColorLoader3State();
+}
+
+class _ColorLoader3State extends State<ColorLoader3>
+    with SingleTickerProviderStateMixin {
+  late Animation<double> animation_rotation;
+  late Animation<double> animation_radius_in;
+  late Animation<double> animation_radius_out;
+  late AnimationController controller;
+
+  late double radius;
+  late double dotRadius;
+
+  @override
+  void initState() {
+    super.initState();
+
+    radius = widget.radius;
+    dotRadius = widget.dotRadius;
+
+    print(dotRadius);
+
+    controller = AnimationController(
+        lowerBound: 0.0,
+        upperBound: 1.0,
+        duration: const Duration(milliseconds: 3000),
+        vsync: this);
+
+    animation_rotation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Interval(0.0, 1.0, curve: Curves.linear),
+      ),
+    );
+
+    animation_radius_in = Tween(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Interval(0.75, 1.0, curve: Curves.elasticIn),
+      ),
+    );
+
+    animation_radius_out = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: controller,
+        curve: Interval(0.0, 0.25, curve: Curves.elasticOut),
+      ),
+    );
+
+    controller.addListener(() {
+      setState(() {
+        if (controller.value >= 0.75 && controller.value <= 1.0)
+          radius = widget.radius * animation_radius_in.value;
+        else if (controller.value >= 0.0 && controller.value <= 0.25)
+          radius = widget.radius * animation_radius_out.value;
+      });
+    });
+
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {}
+    });
+
+    controller.repeat();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100.0,
+      height: 100.0,
+      //color: Colors.black12,
+      child: new Center(
+        child: new RotationTransition(
+
+          turns: animation_rotation,
+          child: new Container(
+            //color: Colors.limeAccent,
+            child: new Center(
+              child: Stack(
+                children: <Widget>[
+                  new Transform.translate(
+                    offset: Offset(0.0, 0.0),
+                    child: Dot(
+                      radius: radius,
+                      color: Colors.black12,
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.amber,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0),
+                      radius * sin(0.0),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.deepOrangeAccent,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 1 * pi / 4),
+                      radius * sin(0.0 + 1 * pi / 4),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.pinkAccent,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 2 * pi / 4),
+                      radius * sin(0.0 + 2 * pi / 4),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.purple,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 3 * pi / 4),
+                      radius * sin(0.0 + 3 * pi / 4),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.yellow,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 4 * pi / 4),
+                      radius * sin(0.0 + 4 * pi / 4),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.lightGreen,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 5 * pi / 4),
+                      radius * sin(0.0 + 5 * pi / 4),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.orangeAccent,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 6 * pi / 4),
+                      radius * sin(0.0 + 6 * pi / 4),
+                    ),
+                  ),
+                  new Transform.translate(
+                    child: Dot(
+                      radius: dotRadius,
+                      color: Colors.blueAccent,
+                    ),
+                    offset: Offset(
+                      radius * cos(0.0 + 7 * pi / 4),
+                      radius * sin(0.0 + 7 * pi / 4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+class Dot extends StatelessWidget {
+  final double? radius;
+  final Color? color;
+
+  Dot({this.radius, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return new Center(
+      child: Container(
+        width: radius,
+        height: radius,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+
+      ),
+    );
+  }
 }

@@ -1,0 +1,2 @@
+C:/Users/BAHU/Desktop/EthioCommerce-mobile-app/android/app/.cxx/RelWithDebInfo/g63ng3b2/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/BAHU/Desktop/EthioCommerce-mobile-app/android/app/.cxx/RelWithDebInfo/g63ng3b2/x86_64/CMakeFiles/rebuild_cache.dir

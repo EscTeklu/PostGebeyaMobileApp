@@ -1,10 +1,13 @@
 
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:nopcommerce_mobile/constants/app_constants.dart';
 import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/customize/models/nivo_slider_item.dart';
 import 'package:nopcommerce_mobile/customize/services/api_service.dart';
+import 'package:nopcommerce_mobile/common_widgets/skeleton_loaders.dart';
 
 class SlidesCarousel extends StatefulWidget {
   //final String apiBaseUrl;
@@ -45,9 +48,12 @@ class _SlidesCarouselState extends State<SlidesCarousel> {
       future: _slidesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: const HomeTopSkeleton()
+          //CircularProgressIndicator()
+          );
         } else if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
+          //return Center(child: Text("Error: ${snapshot.error}"));
+          return Center(child: Text("Sorry : It Seems You don't have Stable Connecton"));
         } else if (!snapshot.hasData || snapshot.data!.slides.isEmpty) {
           return const Center(child: Text("No slides available"));
         }
@@ -68,12 +74,12 @@ class _SlidesCarouselState extends State<SlidesCarousel> {
                 return GestureDetector(
                   onTap: () => _openLink(slide.link),
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black26,
+                          color: Colors.black26.withOpacity(0.3),
                           blurRadius: 8,
                           offset: Offset(0, 4),
                         ),
@@ -87,9 +93,18 @@ class _SlidesCarouselState extends State<SlidesCarousel> {
                           // Parallax image
                           Transform.translate(
                             offset: Offset(parallaxOffset, 0),
-                            child: Image.network(
-                              slide.imageUrl,
-                              fit: BoxFit.cover,
+                            child: CachedNetworkImage(
+                              height: 40,
+                              width: 60,
+                              fit: BoxFit.fitWidth,
+                              imageUrl: AppConstants.storeUrl+slide.imageUrl,
+                              placeholder:
+                                  (context, url) => const HomeTopSkeleton(),//const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => const Icon(Icons.error),
+                            ),
+                            /*Image.network(
+                              AppConstants.storeUrl+slide.imageUrl,
+                              fit: BoxFit.fitWidth,
                               errorBuilder: (context, error, stackTrace) =>
                               const Icon(Icons.broken_image, size: 100),
                               loadingBuilder: (context, child, loadingProgress) {
@@ -97,14 +112,14 @@ class _SlidesCarouselState extends State<SlidesCarousel> {
                                 return const Center(
                                     child: CircularProgressIndicator());
                               },
-                            ),
+                            ),*/
                           ),
                           // Gradient overlay
                           Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.black.withOpacity(0.6),
+                                  Colors.white10.withOpacity(0.3),
                                   Colors.transparent,
                                 ],
                                 begin: Alignment.bottomCenter,
@@ -152,7 +167,7 @@ class _SlidesCarouselState extends State<SlidesCarousel> {
                 );
               },
               options: CarouselOptions(
-                height: 220,
+                height: 180,
                 autoPlay: true,
                 aspectRatio: 2.37,
                 enlargeCenterPage: true,
@@ -162,7 +177,7 @@ class _SlidesCarouselState extends State<SlidesCarousel> {
                 },
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             // Dot indicators
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

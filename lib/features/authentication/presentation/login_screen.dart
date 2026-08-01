@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nopcommerce_mobile/common_widgets/custom_filled_button.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_text_form_field.dart';
-import 'package:nopcommerce_mobile/common_widgets/text_link.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
@@ -12,7 +9,6 @@ import 'package:nopcommerce_mobile/features/shared/settings.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:nopcommerce_mobile/utils/async_value_ui.dart';
-//import 'package:animate_do/animate_do.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -23,7 +19,6 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-/// A widget for email & password authentication
 class LoginContents extends ConsumerStatefulWidget {
   const LoginContents({super.key, this.onSignedIn});
   final VoidCallback? onSignedIn;
@@ -33,47 +28,36 @@ class LoginContents extends ConsumerStatefulWidget {
 }
 
 class _LoginContentsState extends ConsumerState<LoginContents> {
-  static const Color accentColor = Color(0xFF2C2E7B);
+  static const _blue = Color(0xFF2C2E7B);
+  static const _orange = Color(0xFFF5AD00);
+
   final _formKey = GlobalKey<FormState>();
   final _node = FocusScopeNode();
 
   String email = '';
   String password = '';
-
   var _submitted = false;
 
   @override
   void dispose() {
-    //TextEditingControllers should be always disposed
     _node.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     setState(() => _submitted = true);
-    // only submit the form if validation passes
     _formKey.currentState!.save();
     if (_formKey.currentState!.validate()) {
       final controller = ref.read(loginControllerProvider.notifier);
-      await controller
-          .submit(email, password)
-          .then(
-            (value) => {
-              if (value)
-                {ref.refresh(customerInfoProvider), widget.onSignedIn?.call()},
-            },
-          );
+      await controller.submit(email, password).then((value) {
+        if (value) {
+          ref.invalidate(customerInfoProvider);
+          widget.onSignedIn?.call();
+        }
+      });
     } else {
       showInSnackBar(context, context.locale!.global_fix_error);
     }
-  }
-
-  void _emailEditingComplete() {
-    _node.nextFocus();
-  }
-
-  void _passwordEditingComplete() {
-    _submit();
   }
 
   @override
@@ -84,220 +68,217 @@ class _LoginContentsState extends ConsumerState<LoginContents> {
     );
     final state = ref.watch(loginControllerProvider);
 
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/bg5.jpg'),
-          fit: BoxFit.cover,
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F5FB),
+      appBar: AppBar(
+        backgroundColor: _blue,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      child: Scaffold(
-        backgroundColor: GlobalVariables.backgroundColor,
-        appBar: AppBar(
-          backgroundColor: GlobalVariables.accentColor,
-          title: Text(
-            context.locale!.auth_login,
-            style: TextStyle(color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.white,
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-        body: Stack(
+      body: SingleChildScrollView(
+        child: Column(
           children: [
-            Positioned.fill(
-              child: Image.asset(
-                'assets/bg5.jpg', // Replace with your image path
-                fit: BoxFit.cover,
+            // ── Gradient header ────────────────────────────────────────
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF2C2E7B), Color(0xFF3F42A8)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 36),
+              child: Column(
+                children: [
+                  // Logo
+                  Image.asset(
+                    'assets/bottom_logo.png',
+                    height: 52,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Welcome Back!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Sign in to continue shopping',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
               ),
             ),
-            SingleChildScrollView(
-              child: FocusScope(
-                node: _node,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        height: 300,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/background.png'),
-                            fit: BoxFit.fill,
+
+            const SizedBox(height: 28),
+
+            // ── Form card ──────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _blue.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(24),
+                child: FocusScope(
+                  node: _node,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Section label
+                        const Text(
+                          'SIGN IN',
+                          style: TextStyle(
+                            color: _blue,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.4,
                           ),
                         ),
-                        child: Stack(
-                          children: <Widget>[
-                            Positioned(
-                              left: 30,
-                              width: 80,
-                              height: 200,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/light-1.png'),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              left: 140,
-                              width: 80,
-                              height: 150,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/light-2.png'),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              right: 40,
-                              top: 40,
-                              width: 80,
-                              height: 150,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/clock.png'),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              child: Container(
-                                margin: EdgeInsets.only(top: 50),
-                                child: Center(
-                                  child: Text(
-                                    "Email Login",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(30.0),
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(
-                                        225, 95, 27, 0.00784313725490196),
-                                    blurRadius: 20,
-                                    offset: Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: <Widget>[
-                                  Container(
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: Colors.grey.shade200,
-                                        ),
-                                      ),
-                                    ),
-                                    child: CustomerTextFormField(
-                                      context.locale!.auth_email,
-                                      value: email,
-                                          (value) => email = value ?? '',
-                                      onEditingComplete:
-                                          () => _emailEditingComplete(),
-                                      enabled: !state.isLoading,
-                                      isEmail: true,
-                                      submitted: _submitted,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: Colors.grey.shade200,
-                                        ),
-                                      ),
-                                    ),
-                                    child: CustomerTextFormField(
-                                      context.locale!.auth_password,
-                                      value: password,
-                                          (value) => password = value ?? '',
-                                      onEditingComplete:
-                                          () => _passwordEditingComplete(),
-                                      enabled: !state.isLoading,
-                                      submitted: _submitted,
-                                      obscureText: true,
-                                      minLength: AppSettings.passwordMinLength,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 30),
-                            Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                gradient: LinearGradient(
-                                  colors: [accentColor, accentColor],
-                                ),
-                              ),
-                              child: Center(
-                                child: CustomFilledButton(
-                                  text: context.locale!.auth_login,
-                                  isLoading: state.isLoading,
-                                  onPressed:
-                                  state.isLoading ? null : () => _submit(),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 40),
-                            Card(
-                              elevation: 8,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              child: TextLink(
-                                label: context.locale!.auth_forgot_password,
-                                onTap:
-                                    () => {
-                                  context.pushNamed(Routes.forgotPassword.name),
-                                },
-                                textStyle: Theme.of(
-                                  context,
-                                ).textTheme.titleMedium!.copyWith(
-                                  backgroundColor: Colors.white,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 22,
-                                ),
-                              ),
-                            )
+                        const SizedBox(height: 16),
 
-                          ],
+                        // Email field
+                        CustomerTextFormField(
+                          context.locale!.auth_email,
+                          value: email,
+                          (value) => email = value ?? '',
+                          onEditingComplete: () => _node.nextFocus(),
+                          enabled: !state.isLoading,
+                          isEmail: true,
+                          submitted: _submitted,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+
+                        // Password field
+                        CustomerTextFormField(
+                          context.locale!.auth_password,
+                          value: password,
+                          (value) => password = value ?? '',
+                          onEditingComplete: () => _submit(),
+                          enabled: !state.isLoading,
+                          submitted: _submitted,
+                          obscureText: true,
+                          minLength: AppSettings.passwordMinLength,
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Forgot password
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () =>
+                                context.pushNamed(Routes.forgotPassword.name),
+                            style: TextButton.styleFrom(
+                              foregroundColor: _blue,
+                              padding: EdgeInsets.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              context.locale!.auth_forgot_password,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Sign in button
+                        SizedBox(
+                          height: 52,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _orange,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed:
+                                state.isLoading ? null : () => _submit(),
+                            child: state.isLoading
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    context.locale!.auth_login,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+
+            const SizedBox(height: 24),
+
+            // ── Register link ──────────────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Don't have an account? ",
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => context.pushNamed(Routes.register.name),
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(
+                      color: _blue,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
           ],
-        )
+        ),
       ),
     );
   }

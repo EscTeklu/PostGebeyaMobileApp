@@ -4,13 +4,15 @@ import 'package:frontend_api/frontend_api.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:nopcommerce_mobile/common_widgets/async_value.dart';
 import 'package:nopcommerce_mobile/common_widgets/items_not_found.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/repository_provider.dart';
 import 'package:nopcommerce_mobile/features/customer/data/customer_repository.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/back_in_stock/subscription_card.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/utils/async_value_ui.dart';
+
+const _blue = Color(0xFF2C2E7B);
+const _bg = Color(0xFFF4F5FB);
 
 class AccountBackInStockScreen extends ConsumerWidget {
   const AccountBackInStockScreen({super.key});
@@ -21,17 +23,16 @@ class AccountBackInStockScreen extends ConsumerWidget {
 
     return AsyncValueWidget<CustomerBackInStockSubscriptionsModelDto?>(
       value: backInStockSubscriptions,
-      data:
-          (model) => AccountOrdersContents(
-            backInStockSubscriptions:
-                model ?? CustomerBackInStockSubscriptionsModelDto(),
-          ),
+      data: (model) => AccountBackInStockContents(
+        backInStockSubscriptions:
+            model ?? CustomerBackInStockSubscriptionsModelDto(),
+      ),
     );
   }
 }
 
-class AccountOrdersContents extends ConsumerStatefulWidget {
-  const AccountOrdersContents({
+class AccountBackInStockContents extends ConsumerStatefulWidget {
+  const AccountBackInStockContents({
     super.key,
     required this.backInStockSubscriptions,
   });
@@ -39,11 +40,12 @@ class AccountOrdersContents extends ConsumerStatefulWidget {
   final CustomerBackInStockSubscriptionsModelDto backInStockSubscriptions;
 
   @override
-  ConsumerState<AccountOrdersContents> createState() =>
-      _AccountOrdersContents();
+  ConsumerState<AccountBackInStockContents> createState() =>
+      _AccountBackInStockContentsState();
 }
 
-class _AccountOrdersContents extends ConsumerState<AccountOrdersContents> {
+class _AccountBackInStockContentsState
+    extends ConsumerState<AccountBackInStockContents> {
   final PagingController<int, BackInStockSubscriptionModelDto>
   _pagingController = PagingController(firstPageKey: 1);
 
@@ -95,33 +97,63 @@ class _AccountOrdersContents extends ConsumerState<AccountOrdersContents> {
     );
 
     return Scaffold(
+      backgroundColor: _bg,
       appBar: AppBar(
-        backgroundColor: GlobalVariables.accentColor,
+        backgroundColor: _blue,
+        elevation: 0,
+        centerTitle: true,
         title: Text(
           context.locale!.account_back_in_stock_subscriptions,
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
+          style: const TextStyle(
             color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+        ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
         ),
       ),
       body: PagedListView<int, BackInStockSubscriptionModelDto>(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         pagingController: _pagingController,
         builderDelegate:
             PagedChildBuilderDelegate<BackInStockSubscriptionModelDto>(
-              itemBuilder:
-                  (context, item, index) => BackInStockSubscriptionCard(item),
-              noItemsFoundIndicatorBuilder:
-                  (context) => ItemsNotFound(
-                    text:
-                        context
-                            .locale!
-                            .account_back_in_stock_subscriptions_no_found,
+              itemBuilder: (context, item, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _blue.withValues(alpha: 0.07),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
+                  child: BackInStockSubscriptionCard(item),
+                ),
+              ),
+              noItemsFoundIndicatorBuilder: (context) => ItemsNotFound(
+                text: context.locale!.account_back_in_stock_subscriptions_no_found,
+              ),
             ),
       ),
     );

@@ -468,7 +468,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_no_internet_connection_message => 'Please check your internet connection and try again.';
 
   @override
-  String get app_title => 'nopCommerce mobile app';
+  String get app_title => 'PostGebeya mobile app';
 
   @override
   String get app_validators_can_not_be_empty => 'can\'t be empty';

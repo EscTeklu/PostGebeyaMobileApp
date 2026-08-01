@@ -1016,7 +1016,7 @@ abstract class AppLocalizations {
   /// No description provided for @app_title.
   ///
   /// In en, this message translates to:
-  /// **'nopCommerce mobile app'**
+  /// **'PostGebeya mobile app'**
   String get app_title;
 
   /// No description provided for @app_validators_can_not_be_empty.

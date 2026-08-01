@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:nopcommerce_mobile/constants/app_constants.dart';
 
 /// Custom image widget that loads an image.
 class CustomImage extends StatelessWidget {
@@ -8,7 +9,7 @@ class CustomImage extends StatelessWidget {
       required this.url,
       this.width,
       this.height,
-      this.fit = BoxFit.contain});
+      this.fit = BoxFit.fitWidth});
   final String url;
   final double? width;
   final double? height;
@@ -19,7 +20,7 @@ class CustomImage extends StatelessWidget {
     return CachedNetworkImage(
       errorWidget: (context, url, error) => Image.asset('assets/error.png'),
       placeholder: (context, url) => Image.asset('assets/placeholder.png'),
-      imageUrl: url,
+      imageUrl: AppConstants.storeUrl+url,
       fit: fit,
       width: width,
       height: height,

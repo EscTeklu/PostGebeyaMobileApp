@@ -1,3 +1,5 @@
+import 'package:nopcommerce_mobile/constants/app_constants.dart';
+
 class Product {
   final String name;
   final String shortDescription;
@@ -33,24 +35,25 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      name: json['Name'] as String,
-      shortDescription: json['ShortDescription'] as String,
-      fullDescription: json['FullDescription'] as String?,
-      seName: json['SeName'] as String,
-      sku: json['Sku'] as String?,
-      productType: json['ProductType'] as String,
-      markAsNew: json['MarkAsNew'] as bool,
-      productPrice: ProductPrice.fromJson(json['ProductPrice'] as Map<String, dynamic>),
-      pictureModels: (json['PictureModels'] as List<dynamic>)
+      name: json['Name']?.toString() ?? '',
+      shortDescription: json['ShortDescription']?.toString() ?? '',
+      fullDescription: json['FullDescription']?.toString(),
+      seName: json['SeName']?.toString() ?? '',
+      sku: json['Sku']?.toString(),
+      productType: json['ProductType']?.toString() ?? '',
+      markAsNew: json['MarkAsNew'] == true,
+      productPrice: ProductPrice.fromJson(
+          (json['ProductPrice'] ?? {}) as Map<String, dynamic>),
+      pictureModels: (json['PictureModels'] as List<dynamic>? ?? [])
           .map((e) => PictureModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       productSpecificationModel: ProductSpecificationModel.fromJson(
-          json['ProductSpecificationModel'] as Map<String, dynamic>),
+          (json['ProductSpecificationModel'] ?? {}) as Map<String, dynamic>),
       reviewOverviewModel: ReviewOverviewModel.fromJson(
-          json['ReviewOverviewModel'] as Map<String, dynamic>),
-      hasRequiredAttributes: json['HasRequiredAttributes'] as bool,
-      id: json['Id'] as int,
-      customProperties: json['CustomProperties'] as Map<String, dynamic>,
+          (json['ReviewOverviewModel'] ?? {}) as Map<String, dynamic>),
+      hasRequiredAttributes: json['HasRequiredAttributes'] == true,
+      id: int.tryParse(json['Id']?.toString() ?? '0') ?? 0,
+      customProperties: (json['CustomProperties'] ?? {}) as Map<String, dynamic>,
     );
   }
 
@@ -111,23 +114,29 @@ class ProductPrice {
 
   factory ProductPrice.fromJson(Map<String, dynamic> json) {
     return ProductPrice(
-      oldPrice: json['OldPrice'] as String?,
-      oldPriceValue: json['OldPriceValue'] as double?,
-      price: json['Price'] as String?,
-      priceValue: json['PriceValue'] as double?,
-      basePricePAngV: json['BasePricePAngV'] as String?,
-      basePricePAngVValue: json['BasePricePAngVValue'] as double?,
-      disableBuyButton: json['DisableBuyButton'] as bool,
-      disableWishlistButton: json['DisableWishlistButton'] as bool,
-      disableAddToCompareListButton: json['DisableAddToCompareListButton'] as bool,
-      availableForPreOrder: json['AvailableForPreOrder'] as bool,
+      oldPrice: json['OldPrice']?.toString(),
+      oldPriceValue: (json['OldPriceValue'] is num)
+          ? (json['OldPriceValue'] as num).toDouble()
+          : double.tryParse(json['OldPriceValue']?.toString() ?? ''),
+      price: json['Price']?.toString(),
+      priceValue: (json['PriceValue'] is num)
+          ? (json['PriceValue'] as num).toDouble()
+          : double.tryParse(json['PriceValue']?.toString() ?? ''),
+      basePricePAngV: json['BasePricePAngV']?.toString(),
+      basePricePAngVValue: (json['BasePricePAngVValue'] is num)
+          ? (json['BasePricePAngVValue'] as num).toDouble()
+          : double.tryParse(json['BasePricePAngVValue']?.toString() ?? ''),
+      disableBuyButton: json['DisableBuyButton'] == true,
+      disableWishlistButton: json['DisableWishlistButton'] == true,
+      disableAddToCompareListButton: json['DisableAddToCompareListButton'] == true,
+      availableForPreOrder: json['AvailableForPreOrder'] == true,
       preOrderAvailabilityStartDateTimeUtc:
-      json['PreOrderAvailabilityStartDateTimeUtc'] as String?,
-      isRental: json['IsRental'] as bool,
+      json['PreOrderAvailabilityStartDateTimeUtc']?.toString(),
+      isRental: json['IsRental'] == true,
       forceRedirectionAfterAddingToCart:
-      json['ForceRedirectionAfterAddingToCart'] as bool,
-      displayTaxShippingInfo: json['DisplayTaxShippingInfo'] as bool,
-      customProperties: json['CustomProperties'] as Map<String, dynamic>,
+      json['ForceRedirectionAfterAddingToCart'] == true,
+      displayTaxShippingInfo: json['DisplayTaxShippingInfo'] == true,
+      customProperties: (json['CustomProperties'] ?? {}) as Map<String, dynamic>,
     );
   }
 
@@ -173,19 +182,19 @@ class PictureModel {
 
   factory PictureModel.fromJson(Map<String, dynamic> json) {
     return PictureModel(
-      imageUrl: json['ImageUrl'] as String,
-      thumbImageUrl: json['ThumbImageUrl'] as String?,
-      fullSizeImageUrl: json['FullSizeImageUrl'] as String,
-      title: json['Title'] as String,
-      alternateText: json['AlternateText'] as String,
-      id: json['Id'] as int,
-      customProperties: json['CustomProperties'] as Map<String, dynamic>,
+      imageUrl: json['ImageUrl']?.toString() ?? '',
+      thumbImageUrl: json['ThumbImageUrl']?.toString(),
+      fullSizeImageUrl: json['FullSizeImageUrl']?.toString() ?? '',
+      title: json['Title']?.toString() ?? '',
+      alternateText: json['AlternateText']?.toString() ?? '',
+      id: int.tryParse(json['Id']?.toString() ?? '0') ?? 0,
+      customProperties: (json['CustomProperties'] ?? {}) as Map<String, dynamic>,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'ImageUrl': imageUrl,
+      'ImageUrl': AppConstants.storeUrl+imageUrl,
       'ThumbImageUrl': thumbImageUrl,
       'FullSizeImageUrl': fullSizeImageUrl,
       'Title': title,
@@ -207,8 +216,8 @@ class ProductSpecificationModel {
 
   factory ProductSpecificationModel.fromJson(Map<String, dynamic> json) {
     return ProductSpecificationModel(
-      groups: json['Groups'] as List<dynamic>,
-      customProperties: json['CustomProperties'] as Map<String, dynamic>,
+      groups: (json['Groups'] as List<dynamic>? ?? []),
+      customProperties: (json['CustomProperties'] ?? {}) as Map<String, dynamic>,
     );
   }
 
@@ -241,13 +250,13 @@ class ReviewOverviewModel {
 
   factory ReviewOverviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewOverviewModel(
-      productId: json['ProductId'] as int,
-      ratingSum: json['RatingSum'] as int,
-      totalReviews: json['TotalReviews'] as int,
-      allowCustomerReviews: json['AllowCustomerReviews'] as bool,
-      canAddNewReview: json['CanAddNewReview'] as bool,
-      canCurrentCustomerLeaveReview: json['CanCurrentCustomerLeaveReview'] as bool,
-      customProperties: json['CustomProperties'] as Map<String, dynamic>,
+      productId: int.tryParse(json['ProductId']?.toString() ?? '0') ?? 0,
+      ratingSum: int.tryParse(json['RatingSum']?.toString() ?? '0') ?? 0,
+      totalReviews: int.tryParse(json['TotalReviews']?.toString() ?? '0') ?? 0,
+      allowCustomerReviews: json['AllowCustomerReviews'] == true,
+      canAddNewReview: json['CanAddNewReview'] == true,
+      canCurrentCustomerLeaveReview: json['CanCurrentCustomerLeaveReview'] == true,
+      customProperties: (json['CustomProperties'] ?? {}) as Map<String, dynamic>,
     );
   }
 

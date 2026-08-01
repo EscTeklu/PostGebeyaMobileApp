@@ -25,7 +25,7 @@ class SingleImageOffer extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 12),
+        /*const SizedBox(height: 12),
         Text(
           headTitle,
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, backgroundColor: Colors.white),
@@ -33,7 +33,7 @@ class SingleImageOffer extends StatelessWidget {
         Text(
           subTitle,
           style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14, backgroundColor: Colors.white),
-        ),
+        ),*/
         //const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.only(top: 12.0),

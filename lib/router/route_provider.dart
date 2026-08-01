@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:nopcommerce_mobile/customize/screens/login_option_screen.dart';
 import 'package:nopcommerce_mobile/features/address/presentation/create_update_address_screen.dart';
 import 'package:nopcommerce_mobile/features/app/home/presentation/home_screen.dart';
 import 'package:nopcommerce_mobile/features/app/page_not_found_screen.dart';
@@ -11,6 +10,7 @@ import 'package:nopcommerce_mobile/features/app/splash_screen.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/auth_providers.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/forgot_password_screen.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/login_checkout_screen.dart';
+import 'package:nopcommerce_mobile/features/authentication/presentation/login_screen.dart';
 import 'package:nopcommerce_mobile/features/authentication/presentation/register_screen.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/shopping_cart/shopping_cart_screen.dart';
 import 'package:nopcommerce_mobile/features/checkout/presentation/steps/checkout_screen.dart';
@@ -28,7 +28,6 @@ import 'package:nopcommerce_mobile/features/customer/presentation/account/orders
 import 'package:nopcommerce_mobile/features/customer/presentation/account/product_reviews/account_product_reviews_screen.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/return_requests/account_return_requests_screen.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/reward_points/account_reward_points_screen.dart';
-import 'package:nopcommerce_mobile/features/customer/presentation/account/web_info.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/wishlist/wishlist_screen.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/catalog/catalog_screen.dart';
 import 'package:nopcommerce_mobile/features/settings/presentation/settings_screen.dart';
@@ -41,6 +40,7 @@ import 'package:nopcommerce_mobile/features/products/presentation/product/produc
 import 'package:nopcommerce_mobile/features/reviews/presentation/add_review_screen.dart';
 import 'package:nopcommerce_mobile/features/reviews/presentation/review_screen.dart';
 import 'package:nopcommerce_mobile/features/shared/token_helper.dart';
+import 'package:nopcommerce_mobile/features/app/splash_ready_notifier.dart';
 import 'package:nopcommerce_mobile/router/go_router_refresh_stream.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:nopcommerce_mobile/router/scaffold_with_nav_bar.dart';
@@ -50,6 +50,7 @@ final routeProvider = Provider<GoRouter>((ref) {
 
   final authRepository = ref.watch(authRepositoryProvider);
   final webApiVersion = ref.watch(webApiVersionProvider);
+  final splashReady = ref.watch(splashReadyNotifierProvider);
 
   final rootNavigatorKey = GlobalKey<NavigatorState>();
   final shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -69,13 +70,14 @@ final routeProvider = Provider<GoRouter>((ref) {
       } else {
         final isGuest = customer.isGuest;
         if (!isGuest) {
-          if (topRoute == "login" ||
-              topRoute == "register" ||
-              path == "/splash") {
+          if (topRoute == "login" || topRoute == "register") {
+            return '/home';
+          }
+          if (path == "/splash" && splashReady.ready) {
             return '/home';
           }
         } else {
-          if (path == "/splash") {
+          if (path == "/splash" && splashReady.ready) {
             return '/home';
           }
         }
@@ -83,8 +85,10 @@ final routeProvider = Provider<GoRouter>((ref) {
 
       return null;
     },
-    refreshListenable:
-    GoRouterRefreshStream(authRepository.authStateChanges()),
+    refreshListenable: Listenable.merge([
+      GoRouterRefreshStream(authRepository.authStateChanges()),
+      splashReady,
+    ]),
     navigatorKey: rootNavigatorKey,
     routes: [
       GoRoute(
@@ -93,7 +97,7 @@ final routeProvider = Provider<GoRouter>((ref) {
         builder: (context, state) =>
             SplashScreen(apiVersion: webApiVersion.value),
       ),
-  /*return GoRouter(
+      /*return GoRouter(
     initialLocation: '/splash',
     debugLogDiagnostics: kDebugMode,
     redirect: (BuildContext context, GoRouterState state) {
@@ -149,20 +153,20 @@ final routeProvider = Provider<GoRouter>((ref) {
             name: Routes.home.name,
             pageBuilder:
                 (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  restorationId: state.pageKey.value,
-                  child: const HomePageScreen(),
-                ),
+              key: state.pageKey,
+              restorationId: state.pageKey.value,
+              child: const HomePageScreen(),
+            ),
           ),
           GoRoute(
             path: '/catalog',
             name: Routes.catalog.name,
             pageBuilder:
                 (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  restorationId: state.pageKey.value,
-                  child: const CatalogScreen(),
-                ),
+              key: state.pageKey,
+              restorationId: state.pageKey.value,
+              child: const CatalogScreen(),
+            ),
             routes: [
               GoRoute(
                 path: 'category/:id',
@@ -246,21 +250,21 @@ final routeProvider = Provider<GoRouter>((ref) {
             name: Routes.cart.name,
             pageBuilder:
                 (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  restorationId: state.pageKey.value,
-                  child: ShoppingCartScreen(),
-                ),
+              key: state.pageKey,
+              restorationId: state.pageKey.value,
+              child: ShoppingCartScreen(),
+            ),
             routes: [
               GoRoute(
                 path: 'checkout',
                 name: Routes.checkout.name,
                 pageBuilder:
                     (context, state) => MaterialPage(
-                      //key: ValueKey(state.location),
-                      key: state.pageKey,
-                      fullscreenDialog: true,
-                      child: const CheckoutScreen(),
-                    ),
+                  //key: ValueKey(state.location),
+                  key: state.pageKey,
+                  fullscreenDialog: true,
+                  child: const CheckoutScreen(),
+                ),
               ),
             ],
           ),
@@ -270,19 +274,19 @@ final routeProvider = Provider<GoRouter>((ref) {
             name: Routes.account.name,
             pageBuilder:
                 (context, state) => NoTransitionPage(
-                  key: state.pageKey,
-                  restorationId: state.pageKey.value,
-                  child: const AccountScreen(),
-                ),
+              key: state.pageKey,
+              restorationId: state.pageKey.value,
+              child: const AccountScreen(),
+            ),
             routes: [
               GoRoute(
                 path: 'logincheckout',
                 name: Routes.loginCheckout.name,
                 pageBuilder:
                     (context, state) => MaterialPage(
-                      key: state.pageKey,
-                      child: const LoginCheckoutScreen(),
-                    ),
+                  key: state.pageKey,
+                  child: const LoginCheckoutScreen(),
+                ),
               ),
               GoRoute(
                 path: 'login',
@@ -290,10 +294,9 @@ final routeProvider = Provider<GoRouter>((ref) {
                 //parentNavigatorKey: rootNavigatorKey,
                 pageBuilder:
                     (context, state) => MaterialPage(
-                      key: state.pageKey,
-                      //child: const LoginScreen(),
-                      child: const LoginOptionScreen(),
-                    ),
+                  key: state.pageKey,
+                  child: const LoginScreen(),
+                ),
                 routes: [
                   GoRoute(
                     path: 'forgotPassword',
@@ -307,28 +310,28 @@ final routeProvider = Provider<GoRouter>((ref) {
                 name: Routes.register.name,
                 pageBuilder:
                     (context, state) => MaterialPage(
-                      key: state.pageKey,
-                      child: const RegisterScreen(),
-                     // child: const WebInfo(urlWeb: 'https://dev.africom.et/register?returnUrl=%2F',),
-                    ),
+                  key: state.pageKey,
+                  child: const RegisterScreen(),
+                  // child: const WebInfo(urlWeb: 'https://dev.africom.et/register?returnUrl=%2F',),
+                ),
               ),
               GoRoute(
                 path: 'settings',
                 name: Routes.settings.name,
                 pageBuilder:
                     (context, state) => MaterialPage(
-                      key: state.pageKey,
-                      child: const SettingsScreen(),
-                    ),
+                  key: state.pageKey,
+                  child: const SettingsScreen(),
+                ),
               ),
               GoRoute(
                 path: 'contactUs',
                 name: Routes.contactUs.name,
                 pageBuilder:
                     (context, state) => MaterialPage(
-                      key: state.pageKey,
-                      child: const ContactUsScreen(),
-                    ),
+                  key: state.pageKey,
+                  child: const ContactUsScreen(),
+                ),
               ),
               GoRoute(
                 path: 'wishlist',
@@ -375,7 +378,7 @@ final routeProvider = Provider<GoRouter>((ref) {
                 name: Routes.accountDownloadableProducts.name,
                 builder:
                     (context, state) =>
-                        const AccountDownloadableProductsScreen(),
+                const AccountDownloadableProductsScreen(),
               ),
               GoRoute(
                 path: 'accountBackInStock',

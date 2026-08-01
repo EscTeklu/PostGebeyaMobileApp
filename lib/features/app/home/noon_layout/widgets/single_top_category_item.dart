@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:nopcommerce_mobile/constants/app_constants.dart';
 
 class SingleTopCategoryItem extends StatelessWidget {
   const SingleTopCategoryItem({
@@ -31,7 +32,7 @@ class SingleTopCategoryItem extends StatelessWidget {
               height: 60,
               width: 60,
               fit: BoxFit.cover,
-              imageUrl: image,
+              imageUrl: AppConstants.storeUrl+image,
               placeholder:
                   (context, url) => const CircularProgressIndicator(),
               errorWidget: (context, url, error) => const Icon(Icons.error),

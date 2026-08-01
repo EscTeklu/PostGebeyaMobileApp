@@ -10,42 +10,36 @@ final productsRepositoryProvider = Provider<ProductRepository>((ref) {
   return ProductRepository();
 });
 
+// Home page providers — NOT autoDispose so data survives navigation
 final mostSoldProductsListFutureProvider =
-    FutureProvider.autoDispose<List<Product>?>(
-        (ref) async {
-      final productsRepository = ref.watch(productsRepositoryProvider);
-      return productsRepository.getMostSoldProducts();
-    });
-final newProductsListFutureProvider =
-FutureProvider.autoDispose<List<Product>?>(
-        (ref) async {
-      final productsRepository = ref.watch(productsRepositoryProvider);
-      return productsRepository.getNewProducts();
-    });
-final discountProductsListFutureProvider =
-FutureProvider.autoDispose<List<Product>?>(
-        (ref) async {
-      final productsRepository = ref.watch(productsRepositoryProvider);
-      return productsRepository.getDiscountProducts();
-    });
-//
-final homePageProductsListFutureProvider =
-    FutureProvider.autoDispose<BuiltList<ProductOverviewModelDto>?>(
-        (ref) async {
-  final productsRepository = ref.watch(productsRepositoryProvider);
-  return productsRepository.getHomePageProducts();
+    FutureProvider<List<Product>?>((ref) async {
+  return ref.watch(productsRepositoryProvider).getMostSoldProducts();
 });
 
+final newProductsListFutureProvider =
+    FutureProvider<List<Product>?>((ref) async {
+  return ref.watch(productsRepositoryProvider).getNewProducts();
+});
+
+final discountProductsListFutureProvider =
+    FutureProvider<List<Product>?>((ref) async {
+  return ref.watch(productsRepositoryProvider).getDiscountProducts();
+});
+
+final homePageProductsListFutureProvider =
+    FutureProvider<BuiltList<ProductOverviewModelDto>?>((ref) async {
+  return ref.watch(productsRepositoryProvider).getHomePageProducts();
+});
+
+// Product detail providers — autoDispose so each product page fetches fresh
 final relatedProductsListProvider = FutureProvider.autoDispose
     .family<BuiltList<ProductOverviewModelDto>?, int>((ref, id) async {
-  final productsRepository = ref.watch(productsRepositoryProvider);
-  return productsRepository.getRelatedProducts(id);
+  return ref.watch(productsRepositoryProvider).getRelatedProducts(id);
 });
 
 final productProvider = FutureProvider.autoDispose
     .family<ProductDetailsModelDto?, int?>((ref, id) async {
-  final productsRepository = ref.watch(productsRepositoryProvider);
-  return productsRepository.getProductDetails(id!, null);
+  return ref.watch(productsRepositoryProvider).getProductDetails(id!, null);
 });
 
 final productSubscriptionControllerProvider = StateNotifierProvider.autoDispose<

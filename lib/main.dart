@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nopcommerce_mobile/customize/util/secure_utils.dart';
 import 'package:nopcommerce_mobile/features/app/theme/app_theme_provider.dart';
 import 'package:nopcommerce_mobile/utils/exceptions/async_error_logger.dart';
 import 'package:nopcommerce_mobile/utils/exceptions/error_logger.dart';
@@ -9,7 +11,10 @@ import 'package:nopcommerce_mobile/nop_app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //await SecureStorageHelper.clearAll();
+  debugPrint("BAHU Cleared");
   final sharedPreferences = await SharedPreferences.getInstance();
+  //
 
   // Create ProviderContainer with any required overrides
   final container = ProviderContainer(
@@ -20,14 +25,47 @@ void main() async {
   final errorLogger = container.read(errorLoggerProvider);
   // Register error handlers. For more info, see: https://docs.flutter.dev/testing/errors
   registerErrorHandlers(errorLogger);
+  //
+  // Override debugPrint in release mode
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {
+      // Suppress ALL logs in release builds
+      };
+    }
+  //
+  final emulator = await isEmulator();
+  final rooted = await isRooted();
+  //final rooted = await RootDetector.isRooted();
+  if (emulator || rooted)
+  {
+    runApp(BlockedApp()); // Show warning screen
+    //just to test
+    /*runApp(
+      UncontrolledProviderScope(
+        container: container,
+        child: const NopMobileApp(),
+      ),
+    );*/
+  }
+  else
+  {
+      runApp(
+        UncontrolledProviderScope(
+          container: container,
+          child: const NopMobileApp(),
+        ),
+      );// Normal app flow
 
-  runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const NopMobileApp(),
-    ),
-  );
+  }
+  //
+  // Listen for changes
+  /*NetworkGuard.onConnectionChange().listen((result) async {
+    final hasInternet = await NetworkGuard.hasInternetAccess();
+    print("Internet status changed: $hasInternet");
+  });*/
+
 }
+
 
 void registerErrorHandlers(ErrorLogger errorLogger) {
   // Show some error UI if any uncaught exception happens
@@ -45,7 +83,7 @@ void registerErrorHandlers(ErrorLogger errorLogger) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: const Text('An error occurred'),
+        title: const Text('Ohhh! Sorry '),
       ),
       body: Stack(
         children: [
@@ -58,12 +96,33 @@ void registerErrorHandlers(ErrorLogger errorLogger) {
           //Center(child: Text(details.toString())),
           //Center(child: Text(details.exceptionAsString())),
           //Center(child: Text(details.stack.toString())),
-          Center(child: Text('SomeThing Wrong !!!, Please Try Again !!!', style: TextStyle(
-            fontSize: 22,
+          Center(child: Text('SomeThing Went Wrong !!!, Please Try Again !!!', style: TextStyle(
+            fontSize: 14,
             backgroundColor: Color(0xFFEC1A1A),
           ),)),
         ],
       )
     );
   };
+}
+
+
+
+class BlockedApp extends StatelessWidget {
+  const BlockedApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Text(
+            'This app cannot run on emulators or rooted devices.',
+            style: TextStyle(fontSize: 18, color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+    );
+  }
 }

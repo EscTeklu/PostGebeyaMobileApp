@@ -3,112 +3,110 @@ import 'package:flutter/material.dart';
 import 'package:nopcommerce_mobile/frontend_api/lib/frontend_api.dart';
 
 mixin AddressWidget {
+  static const _blue = Color(0xFF2C2E7B);
+  static const _orange = Color(0xFFF5AD00);
+
   Widget getAddressDropdown({
     required BuildContext context,
     required ListBuilder<AddressModelDto> addressess,
     required curentItem,
     required void Function(Object?) onChange,
   }) {
-    final itemo = <DropdownMenuItem<AddressModelDto>>[];
-    itemo.add(
+    final items = <DropdownMenuItem<AddressModelDto?>>[];
 
-      const DropdownMenuItem(
+    items.add(
+      DropdownMenuItem<AddressModelDto?>(
         value: null,
-        child: Card(
-          color: Colors.indigo,
-          child: SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Text("New Address", style: TextStyle(color: Colors.white),),
+        child: Row(
+          children: [
+            Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                color: _orange.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: const Icon(Icons.add_rounded, color: _orange, size: 16),
             ),
-          ),
-        ) ,
+            const SizedBox(width: 10),
+            const Text(
+              'Add New Address',
+              style: TextStyle(
+                color: _orange,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
-    var items = addressess.build().map((AddressModelDto items) {
 
-      itemo.add(
-        DropdownMenuItem(
-          value: items,
-          child: Card(
-            color: Colors.white,
-            child: SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(
-                  getAddressLine(items),
-                ),
-              ),
+    addressess.build().forEach((addr) {
+      items.add(
+        DropdownMenuItem<AddressModelDto?>(
+          value: addr,
+          child: Text(
+            getAddressLine(addr),
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              color: _blue,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
       );
-      return ;
-    }).toList();
+    });
 
-
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        DropdownButton(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F5FB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<AddressModelDto?>(
           isExpanded: true,
-          itemHeight: null,
-          dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-          elevation: 0,
-          items: itemo,
+          dropdownColor: Colors.white,
+          elevation: 2,
+          items: items,
           onChanged: onChange,
           value: curentItem,
-          icon: const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.arrow_right),
-          ),
-          style: Theme.of(context).textTheme.bodyLarge,
-          underline: Container(
-            height: 1,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: _blue),
+          style: const TextStyle(fontSize: 14, color: _blue),
         ),
-      ],
+      ),
     );
   }
 
   String getAddressLine(AddressModelDto? address) {
-    if (address == null) {
-      return "";
-    }
-
-    var addressLine = address.firstName ?? "";
-    addressLine += " ${address.lastName}";
-
+    if (address == null) return '';
+    var line = '${address.firstName ?? ''} ${address.lastName ?? ''}'.trim();
     if ((address.streetAddressEnabled ?? false) &&
-        (address.address1 != null && address.address1!.isNotEmpty)) {
-      addressLine += ", ${address.address1}";
+        (address.address1?.isNotEmpty ?? false)) {
+      line += ', ${address.address1}';
     }
-    if ((address.cityEnabled ?? false) &&
-        (address.city != null && address.city!.isNotEmpty)) {
-      addressLine += ", ${address.city}";
+    if ((address.cityEnabled ?? false) && (address.city?.isNotEmpty ?? false)) {
+      line += ', ${address.city}';
     }
     if ((address.countyEnabled ?? false) &&
-        (address.county != null && address.county!.isNotEmpty)) {
-      addressLine += ", ${address.county}";
+        (address.county?.isNotEmpty ?? false)) {
+      line += ', ${address.county}';
     }
     if ((address.stateProvinceEnabled ?? false) &&
-        (address.stateProvinceName != null &&
-            address.stateProvinceName!.isNotEmpty)) {
-      addressLine += ", ${address.stateProvinceName}";
+        (address.stateProvinceName?.isNotEmpty ?? false)) {
+      line += ', ${address.stateProvinceName}';
     }
     if ((address.zipPostalCodeEnabled ?? false) &&
-        (address.zipPostalCode != null && address.zipPostalCode!.isNotEmpty)) {
-      addressLine += " ${address.zipPostalCode}";
+        (address.zipPostalCode?.isNotEmpty ?? false)) {
+      line += ' ${address.zipPostalCode}';
     }
     if ((address.countryEnabled ?? false) &&
-        (address.countryName != null && address.countryName!.isNotEmpty)) {
-      addressLine += ", ${address.countryName}";
+        (address.countryName?.isNotEmpty ?? false)) {
+      line += ', ${address.countryName}';
     }
-
-    return addressLine;
+    return line.trim();
   }
 }

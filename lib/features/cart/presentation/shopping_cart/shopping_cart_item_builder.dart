@@ -21,9 +21,7 @@ class ShoppingCartBuilder extends ConsumerStatefulWidget {
   const ShoppingCartBuilder({super.key, required this.itemBuilder, this.cart});
 
   final ShoppingCartModelDto? cart;
-
-  final Widget Function(BuildContext, ShoppingCartItemModelDto, int)
-  itemBuilder;
+  final Widget Function(BuildContext, ShoppingCartItemModelDto, int) itemBuilder;
 
   @override
   ConsumerState<ShoppingCartBuilder> createState() =>
@@ -31,13 +29,13 @@ class ShoppingCartBuilder extends ConsumerStatefulWidget {
 }
 
 class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
+  static const _blue = Color(0xFF2C2E7B);
+  static const _orange = Color(0xFFF5AD00);
+
   Map<String, String> checkoutChangedAttributes = {};
   List<CheckoutAttributeModelDtoBuilder> checkoutAttributes = [];
-  Map<
-      CheckoutAttributeModelDtoBuilder,
-      List<CheckoutAttributeValueModelDtoBuilder>?
-  >
-  attributeValues = {};
+  Map<CheckoutAttributeModelDtoBuilder,
+      List<CheckoutAttributeValueModelDtoBuilder>?> attributeValues = {};
 
   late bool isStartCheckout;
 
@@ -51,23 +49,31 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
   @override
   void initState() {
     super.initState();
-
-    setState(() {
-      isStartCheckout = false;
+    isStartCheckout = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      ref.refresh(shoppingCartFutureProvider.future).then((value) {
+        if (!mounted) {
+          return;
+        }
+        if (value?.items?.isNotEmpty ?? false) {
+          ref.invalidate(shoppingCartTotalsProvider);
+        }
+      });
     });
   }
 
-  void prepareCheckoutAttributes() async {
+  void prepareCheckoutAttributes() {
     if (widget.cart?.checkoutAttributes != null) {
       for (var attr in widget.cart!.checkoutAttributes!) {
         checkoutAttributes.add(attr.toBuilder());
-
         if (attr.attributeControlType == AttributeControlType.checkboxes ||
             attr.attributeControlType ==
                 AttributeControlType.readonlyCheckboxes) {
           if (attr.values != null) {
             List<CheckoutAttributeValueModelDtoBuilder> values = [];
-
             for (var value in attr.values!) {
               values.add(value.toBuilder());
             }
@@ -78,12 +84,9 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
     }
   }
 
-  void attributeStateChanged() async {
-    _fetchCheckoutAttributes();
-  }
+  void attributeStateChanged() => _fetchCheckoutAttributes();
 
   Future<void> _fetchCheckoutAttributes() async {
-    //Prepare all selected attribute values
     for (var attribute in checkoutAttributes) {
       List<String> valuesId = [];
       String attrValues = '';
@@ -91,20 +94,16 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
           attribute.attributeControlType ==
               AttributeControlType.readonlyCheckboxes) {
         valuesId.clear();
-
-        //find key by id, not by Object
-        var key =
-            attributeValues.keys
-                .where((element) => element.id == attribute.id)
-                .first;
-
+        var key = attributeValues.keys
+            .where((element) => element.id == attribute.id)
+            .first;
         if (attributeValues.containsKey(key)) {
           for (var value in attributeValues[key]!) {
             if (value.isPreSelected ?? false) {
               valuesId.add('${value.id}');
             }
           }
-          attrValues = valuesId.join(",");
+          attrValues = valuesId.join(',');
         }
       } else {
         if (attribute.defaultValue != null) {
@@ -118,7 +117,7 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
         }
       }
       setState(() {
-        checkoutChangedAttributes["checkout_attribute_${attribute.id}"] =
+        checkoutChangedAttributes['checkout_attribute_${attribute.id}'] =
             attrValues;
       });
     }
@@ -135,19 +134,9 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    //For Reorder fix
-    ref
-        .refresh(shoppingCartFutureProvider.future)
-        .then(
-          (value) => {
-        if (value?.items?.isNotEmpty ?? false)
-          {ref.refresh(shoppingCartTotalsProvider.future)},
-      },
-    );
-
     ref.listen<AsyncValue<ShoppingCart>>(
       shoppingCartControllerProvider,
-          (_, state) => state.showAlertDialogOnError(context),
+      (_, state) => state.showAlertDialogOnError(context),
     );
 
     final user = ref.watch(authStateChangesProvider).value;
@@ -156,27 +145,32 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.shopping_cart_outlined,
-              size: 48,
-              color: Colors.blue,
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: _blue.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.shopping_cart_outlined,
+                size: 38,
+                color: _blue,
+              ),
             ),
             const SizedBox(height: 16),
             PlaceholderContainer(
               message: context.locale!.cart_empty,
               buttonLable: context.locale!.cart_refresh,
-              onPressButton: () {
-                return ref
-                    .refresh(shoppingCartFutureProvider.future)
-                    .then(
-                      (value) => {
-                    if (value?.items?.isNotEmpty ?? false)
-                      {ref.refresh(shoppingCartTotalsProvider.future)},
-                  },
-                );
-              },
+              onPressButton: () => ref
+                  .refresh(shoppingCartFutureProvider.future)
+                  .then(
+                    (value) => {
+                      if (value?.items?.isNotEmpty ?? false)
+                        {ref.refresh(shoppingCartTotalsProvider.future)},
+                    },
+                  ),
             ),
           ],
         ),
@@ -186,20 +180,35 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
     final ShoppingCartModelDto? cart = widget.cart;
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(15, 5, 15, 10),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      itemCount: cart!.items!.length + 1,
       itemBuilder: (context, index) {
-        if (index != cart?.items!.length) {
-          return widget.itemBuilder(context, cart!.items![index], index);
-        } else {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Card(
-                child:
-                checkoutAttributes.isNotEmpty
-                    ? Padding(
-                  padding: const EdgeInsets.all(8.0),
+        if (index != cart.items!.length) {
+          return widget.itemBuilder(context, cart.items![index], index);
+        }
+
+        // Bottom section
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Checkout attributes
+            if (checkoutAttributes.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _blue.withValues(alpha: 0.07),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
                   child: CheckoutAttributeBuilder().buildAttributes(
                     context,
                     attributeStateChanged,
@@ -207,108 +216,136 @@ class _ShoppingCartBuilderState extends ConsumerState<ShoppingCartBuilder> {
                     attributeValues,
                     false,
                   ),
-                )
-                    : const SizedBox.shrink(),
-              ),
-              if (cart?.discountBox?.display ?? false)
-                DiscountBox(discountBox: cart?.discountBox),
-              ShoppingCartTotals(
-                giftCardBoxDisplay: cart?.giftCardBox?.display,
-              ),
-
-              //Terms of services
-              if (cart?.termsOfServiceOnShoppingCartPage ?? false)
-                Card(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Transform.scale(
-                            scale: 1,
-                            alignment: Alignment.centerLeft,
-                            child: Switch(
-                              onChanged: (val) {
-                                setState(() {
-                                  isStartCheckout = val;
-                                });
-                              },
-                              value: isStartCheckout,
-                            ),
-                          ),
-                          Flexible(
-                            child: Container(
-                              alignment: Alignment.topLeft,
-                              child: RichText(
-                                textAlign: TextAlign.start,
-                                text: TextSpan(
-                                  text: context.locale!.cart_term_of_service,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium!
-                                      .copyWith(fontWeight: FontWeight.normal),
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text:
-                                      context.locale!
-                                          .cart_term_of_service_link,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium!.copyWith(
-                                        color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      recognizer:
-                                      TapGestureRecognizer()
-                                        ..onTap = () {
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (context) =>
-                                            const TermOfServiceBox(),
-                                          );
-                                        },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
+              ),
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
-                  onPressed: isStartCheckout
-                      ? () => (user?.isGuest ?? true)
-                          ? showDialog(
-                              context: context,
-                              builder: (_) => const CheckoutModal(),
-                            )
-                          : context.pushNamed(Routes.checkout.name)
-                      : null,
-                  child: Text(context.locale!.checkout),
+            // Discount code
+            if (cart.discountBox?.display ?? false)
+              DiscountBox(discountBox: cart.discountBox),
+
+            // Order summary
+            ShoppingCartTotals(giftCardBoxDisplay: cart.giftCardBox?.display),
+
+            // Terms of service
+            if (cart.termsOfServiceOnShoppingCartPage ?? false) ...[
+              const SizedBox(height: 4),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _blue.withValues(alpha: 0.06),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Transform.scale(
+                        scale: 0.9,
+                        alignment: Alignment.centerLeft,
+                        child: Switch(
+                          activeColor: _orange,
+                          activeTrackColor: _orange.withValues(alpha: 0.3),
+                          inactiveThumbColor: Colors.grey.shade400,
+                          inactiveTrackColor: Colors.grey.shade200,
+                          value: isStartCheckout,
+                          onChanged: (val) =>
+                              setState(() => isStartCheckout = val),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: RichText(
+                          text: TextSpan(
+                            text: context.locale!.cart_term_of_service,
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: 13,
+                            ),
+                            children: [
+                              TextSpan(
+                                text:
+                                    context.locale!.cart_term_of_service_link,
+                                style: const TextStyle(
+                                  color: _blue,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () => showDialog(
+                                        context: context,
+                                        builder: (_) =>
+                                            const TermOfServiceBox(),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
-          );
-        }
+
+            const SizedBox(height: 16),
+
+            // Checkout button
+            SizedBox(
+              height: 54,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: (cart.termsOfServiceOnShoppingCartPage ??
+                              false) &&
+                          !isStartCheckout
+                      ? Colors.grey.shade300
+                      : _orange,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: (cart.termsOfServiceOnShoppingCartPage ?? false) &&
+                        !isStartCheckout
+                    ? null
+                    : () => (user?.isGuest ?? true)
+                        ? showDialog(
+                            context: context,
+                            builder: (_) => const CheckoutModal(),
+                          )
+                        : context.pushNamed(Routes.checkout.name),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.lock_rounded, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.locale!.checkout,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 80),
+          ],
+        );
       },
-      itemCount: widget.cart!.items!.length + 1,
     );
   }
 }

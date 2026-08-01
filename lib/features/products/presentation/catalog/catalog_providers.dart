@@ -9,15 +9,38 @@ final catalogRepositoryProvider = Provider<CatalogRepository>((ref) {
 });
 
 final categoriesListFutureProvider =
-    FutureProvider.autoDispose<BuiltList<CategorySimpleModelDto>?>((ref) async {
+    FutureProvider<BuiltList<CategorySimpleModelDto>?>((ref) async {
   final catalogRepository = ref.watch(catalogRepositoryProvider);
   return catalogRepository.fetchAllCategoriesList();
 });
 
 final homePageCategoriesListFutureProvider =
-    FutureProvider.autoDispose<BuiltList<CategorySimpleModelDto>?>((ref) async {
+    FutureProvider<BuiltList<CategorySimpleModelDto>?>((ref) async {
   final catalogRepository = ref.watch(catalogRepositoryProvider);
   return catalogRepository.getHomePageCategories();
+});
+
+// Persistent provider: fetches all categories + their products once,
+// cached for the session. Invalidate via ref.invalidate() on pull-to-refresh.
+final categoryProductMapProvider =
+    FutureProvider<Map<CategorySimpleModelDto, List<ProductOverviewModelDto>>>(
+        (ref) async {
+  final catalogRepository = ref.watch(catalogRepositoryProvider);
+  final allCategories = await catalogRepository.fetchAllCategoriesList();
+
+  final Map<CategorySimpleModelDto, List<ProductOverviewModelDto>>
+      categoryProductMap = {};
+
+  for (var category in allCategories!) {
+    final result = await catalogRepository.getProductsById(
+      categoryId: category.id!,
+    );
+    categoryProductMap[category] =
+        result?.catalogProductsModel?.products?.toList() ??
+        <ProductOverviewModelDto>[];
+  }
+
+  return categoryProductMap;
 });
 
 final manufacturersListFutureProvider =

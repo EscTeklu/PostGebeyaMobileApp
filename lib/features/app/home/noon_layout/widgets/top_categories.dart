@@ -55,29 +55,4 @@ class TopCategories extends StatelessWidget {
     );
   }
 
-  /* @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 120,
-      decoration: const BoxDecoration(gradient: GlobalVariables.goldenGradient),
-      child: Center(
-        child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final cat = categories[index];
-              return GestureDetector(
-                //onTap: () => navigateToCategoryPage(
-                //context, GlobalVariables.categoryImages[index]['title']!),
-                child: SingleTopCategoryItem(
-                  title: cat
-                      .name!, // GlobalVariables.categoryImages[index]['title']!,
-                  image: cat.pictureModel!
-                      .imageUrl!, //.categoryImages[index]['image']!,
-                ),
-              );
-            }),
-      ),
-    );
-  } */
 }

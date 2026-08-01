@@ -1,48 +1,82 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as https;
 import 'package:nopcommerce_mobile/constants/app_constants.dart';
 import 'package:nopcommerce_mobile/customize/models/nivo_slider_item.dart';
 import 'package:nopcommerce_mobile/customize/models/product_model.dart';
 
 class ApiService {
 
-  String? _sessionCookie;
+  var headers = {
+    'Cookie': '.Nop.Culture=c%3Den-US%7Cuic%3Den-US; .Nop.Customer=16f34caa-ac46-4ce8-bba3-9b8c4c8fa6d7; ARRAffinity=81e6e6013f7aa9433508df690722b5f9ceda4674ac62040d9229251e12cb1344'
+  };
+  var dio = Dio();
 
   Future<List<Product>> getMostSoldProducts() async {
-    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/v1/mostsold"));
+    var response = await dio.request(
+      '${AppConstants.storeUrl}api/data/v1/mostsold',
+      options: Options(
+        method: 'GET',
+        headers: headers,
+      ),
+    );
     if (response.statusCode == 200) {
-      print(json.decode(response.body));
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => Product.fromJson(item)).toList();
+      print(json.encode(response.data));
+      // Ensure response.data is a List
+      final data = response.data as List<dynamic>;
+      return data
+          .map((item) => Product.fromJson(item as Map<String, dynamic>))
+          .toList();
     } else {
       throw Exception("Failed to load most sold products");
     }
   }
 
   Future<List<Product>> getDiscountedProducts() async {
-    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/v1/discounted"));
+    var response = await dio.request(
+      '${AppConstants.storeUrl}api/data/v1/discounted',
+      options: Options(
+        method: 'GET',
+        headers: headers,
+      ),
+    );
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => Product.fromJson(item)).toList();
+      print(json.encode(response.data));
+      // Ensure response.data is a List
+      final data = response.data as List<dynamic>;
+      return data
+          .map((item) => Product.fromJson(item as Map<String, dynamic>))
+          .toList();
     } else {
-      throw Exception("Failed to load discounted products");
+      throw Exception("Failed to load most sold products");
     }
   }
 
   Future<List<Product>> fetchNewProducts() async {
-    final response = await http.get(Uri.parse("${AppConstants.storeUrl}api/products/v1/new"));
+    var response = await dio.request(
+      '${AppConstants.storeUrl}api/data/v1/new',
+      options: Options(
+        method: 'GET',
+        headers: headers,
+      ),
+    );
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((e) => Product.fromJson(e)).toList();
+      print(json.encode(response.data));
+      // Ensure response.data is a List
+      final data = response.data as List<dynamic>;
+      return data
+          .map((item) => Product.fromJson(item as Map<String, dynamic>))
+          .toList();
     } else {
-      throw Exception('Failed to load new products');
+      throw Exception("Failed to load most sold products");
     }
   }
 
   /// Fetches slides from the API
   Future<SlidesResponse> fetchSlides() async {
-    final url = Uri.parse("${AppConstants.storeUrl}api-frontend/nivoslider/slides"); // <-- adjust endpoint
-    final response = await http.get(url);
+    final url = Uri.parse("${AppConstants.storeUrl}api/data/slides"); // <-- adjust endpoint
+    final response = await https.get(url);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend_api/frontend_api.dart';
 import 'package:nopcommerce_mobile/constants/app_constants.dart';
+import 'package:nopcommerce_mobile/customize/util/secure_utils.dart';
 import 'package:nopcommerce_mobile/features/shared/settings.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -38,9 +36,7 @@ mixin TokenHelper {
 
     await _lock.synchronized(() async {
       _token = token;
-      const storage = FlutterSecureStorage();
-      await storage.write(key: "user_token", value: token);
-
+      await SecureStorageHelper.saveEncrypted("user_token", token!);
       /*await onTokenOTPChanged?.call(
           token: token, phone: phone, customerId: userId);*/
       await onTokenChanged?.call(
@@ -88,16 +84,21 @@ mixin TokenHelper {
 
       final response = await api.apiFrontendAuthenticateGetTokenPost(
           authenticateCustomerRequest: authenticateCustomerRequest);
-
-      debugPrint(response.toString());
+      //debugPrint("BAHU AUTH");
+      //debugPrint(response.toString());
 
       if (response.statusCode == 200) {
         token = response.data!.token;
 
         _token = token;
-        const storage = FlutterSecureStorage();
-        await storage.write(key: "user_token", value: token);
-
+        //final enc = await SecureStorageHelper.encryptValue(token!);
+        //final dec = await SecureStorageHelper.decryptValue(enc['cipherText'], enc['iv']);
+        await SecureStorageHelper.saveEncrypted("user_token", token!);
+        //Save to storage
+        /*var ut = await SecureStorageHelper.readDecrypted("user_token");
+        debugPrint("BAHU AUTH Token");
+        debugPrint("${enc['cipherText']!}  ${enc['iv']!}");
+        debugPrint(dec);*/
         await onTokenChanged?.call(
             token: token, email: email, customerId: response.data?.customerId);
       }
@@ -107,10 +108,10 @@ mixin TokenHelper {
   }
 
   static Future<String?> _loadToken() async {
-    const storage = FlutterSecureStorage();
+    //const storage = FlutterSecureStorage();
 
     final token = await _lock.synchronized(() async {
-      return await storage.read(key: "user_token");
+      return await SecureStorageHelper.readDecrypted("user_token");
     });
 
     if (token == null) {
@@ -128,7 +129,6 @@ mixin TokenHelper {
 
   static Future<String?> getToken() async {
     _token = _token ?? await _loadToken() ?? await askToken();
-
     return _token;
   }
 }

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    package="com.nopcommerce.nopcommerce_mobile">
+    package="com.ethiocommerce.ethiocommerce_mobile">
    
     <uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -7,9 +7,13 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" tools:node="remove" />
    
    <application
-		android:requestLegacyExternalStorage="true"
-		android:usesCleartextTraffic="true"
-        android:label="EthioCommerce"
+       android:networkSecurityConfig="@xml/network_security_config"
+		android:requestLegacyExternalStorage="false"
+		android:usesCleartextTraffic="false"
+        android:fullBackupContent="false"
+        android:allowBackup="false"
+        android:enableOnBackInvokedCallback="true"
+        android:label="PostGebeya"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

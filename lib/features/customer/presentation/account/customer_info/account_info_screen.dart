@@ -3,16 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend_api/frontend_api.dart';
 import 'package:intl/intl.dart';
 import 'package:nopcommerce_mobile/common_widgets/async_value.dart';
-import 'package:nopcommerce_mobile/common_widgets/custom_filled_button.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_text_form_field.dart';
 import 'package:nopcommerce_mobile/common_widgets/responsive_scrollable.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/scaffold_messenger_extansion.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/customer_info/gender_widget.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/utils/async_value_ui.dart';
 import 'package:nopcommerce_mobile/utils/date_format_provider.dart';
+
+const _blue = Color(0xFF2C2E7B);
+const _orange = Color(0xFFF5AD00);
+const _bg = Color(0xFFF4F5FB);
 
 class AccountInfoScreen extends ConsumerWidget {
   static var genderKey = const Key('Gender');
@@ -25,11 +27,9 @@ class AccountInfoScreen extends ConsumerWidget {
 
     return AsyncValueWidget<CustomerInfoModelDto?>(
       value: customerInfo,
-      data:
-          (customer) => AccountInfoContents(
-            customerInfo:
-                customer?.toBuilder() ?? CustomerInfoModelDtoBuilder(),
-          ),
+      data: (customer) => AccountInfoContents(
+        customerInfo: customer?.toBuilder() ?? CustomerInfoModelDtoBuilder(),
+      ),
     );
   }
 }
@@ -120,30 +120,24 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
 
   Future<void> _submit() async {
     setState(() => _submitted = true);
-    // only submit the form if validation passes
     _formKey.currentState!.save();
     widget.customerInfo.gender = _genderController.text;
 
     if (_formKey.currentState!.validate()) {
       final controller = ref.read(customerInfControllerProvider.notifier);
 
-      await controller
-          .submit(widget.customerInfo)
-          .then(
-            (value) => {
-              if (!value)
-                {setState(() => _submitted = false)}
-              else
-                {
-                  if (mounted)
-                    showInSnackBar(
-                      context,
-                      context.locale!.global_message_save,
-                    ),
-                  ref.refresh(customerInfoProvider),
-                },
+      await controller.submit(widget.customerInfo).then(
+        (value) => {
+          if (!value)
+            {setState(() => _submitted = false)}
+          else
+            {
+              if (mounted)
+                showInSnackBar(context, context.locale!.global_message_save),
+              ref.refresh(customerInfoProvider),
             },
-          );
+        },
+      );
     } else {
       showInSnackBar(context, context.locale!.global_fix_error);
     }
@@ -159,6 +153,58 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
     super.initState();
   }
 
+  Widget _sectionHeader(String title) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 16,
+          decoration: BoxDecoration(
+            color: _orange,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title.toUpperCase(),
+          style: const TextStyle(
+            color: _blue,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.1,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionCard({required String title, required List<Widget> fields}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: _blue.withValues(alpha: 0.07),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _sectionHeader(title),
+            const SizedBox(height: 16),
+            ...fields,
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue>(
@@ -167,77 +213,105 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
     );
 
     final dateProvider = ref.watch(dateFormatterProvider);
-
-    const offset = SizedBox(height: 8.0);
-    const cardPadding = 15.0;
-    final items = <Widget>[];
-
-    items.add(
-      Card(
-        child: Padding(
-          padding: const EdgeInsets.all(cardPadding),
-          child: Column(children: fillPersonalDetails(offset, dateProvider)),
-        ),
-      ),
-    );
-    items.add(offset);
-
-    if ((widget.customerInfo.companyEnabled ?? false) ||
-        (widget.customerInfo.displayVatNumber ?? false)) {
-      items.add(
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(cardPadding),
-            child: Column(children: fillCompanyDetails(offset)),
-          ),
-        ),
-      );
-    }
-    items.add(offset);
-
-    if ((widget.customerInfo.phoneEnabled ?? false) ||
-        (widget.customerInfo.faxEnabled ?? false)) {
-      items.add(
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(cardPadding),
-            child: Column(children: fillContactInformation(offset)),
-          ),
-        ),
-      );
-    }
-
-    items.add(
-      CustomFilledButton(
-        text: context.locale!.global_button_save,
-        onPressed: () => _submit(),
-      ),
-    );
-    items.add(offset);
+    const gap = SizedBox(height: 12);
 
     return Scaffold(
+      backgroundColor: _bg,
       appBar: AppBar(
-        backgroundColor: GlobalVariables.accentColor,
+        backgroundColor: _blue,
+        elevation: 0,
+        centerTitle: true,
         title: Text(
           context.locale!.account_info,
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
+          style: const TextStyle(
             color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+        ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
         ),
       ),
       body: ResponsiveScrollable(
-        child: FocusScope(
-          node: _node,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: items,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FocusScope(
+            node: _node,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Personal Details Card
+                  _sectionCard(
+                    title: context.locale!.account_info_personal,
+                    fields: _buildPersonalFields(gap, dateProvider),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Company Details Card
+                  if ((widget.customerInfo.companyEnabled ?? false) ||
+                      (widget.customerInfo.displayVatNumber ?? false))
+                    _sectionCard(
+                      title: context.locale!.account_info_company,
+                      fields: _buildCompanyFields(gap),
+                    ),
+                  if ((widget.customerInfo.companyEnabled ?? false) ||
+                      (widget.customerInfo.displayVatNumber ?? false))
+                    const SizedBox(height: 16),
+
+                  // Contact Information Card
+                  if ((widget.customerInfo.phoneEnabled ?? false) ||
+                      (widget.customerInfo.faxEnabled ?? false))
+                    _sectionCard(
+                      title: context.locale!.account_info_contact,
+                      fields: _buildContactFields(gap),
+                    ),
+                  if ((widget.customerInfo.phoneEnabled ?? false) ||
+                      (widget.customerInfo.faxEnabled ?? false))
+                    const SizedBox(height: 16),
+
+                  // Save Button
+                  SizedBox(
+                    height: 52,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _blue,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () => _submit(),
+                      child: Text(
+                        context.locale!.global_button_save,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
         ),
@@ -245,35 +319,23 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
     );
   }
 
-  List<Widget> fillPersonalDetails(SizedBox offset, DateFormat dateProvider) {
-    List<Widget> items = <Widget>[];
-
-    items.add(
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          context.locale!.account_info_personal,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
-    );
-    items.add(offset);
+  List<Widget> _buildPersonalFields(SizedBox gap, DateFormat dateProvider) {
+    final fields = <Widget>[];
 
     _genderController.text = customerInfo.gender ?? '';
 
     if (customerInfo.genderEnabled ?? false) {
-      items.add(
+      fields.add(
         GenderWidget(
           key: AccountInfoScreen.genderKey,
           controller: _genderController,
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
     if (customerInfo.firstNameEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_personal_first_name,
           (value) => customerInfo.firstName = value,
@@ -284,12 +346,11 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
     if (customerInfo.lastNameEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_personal_last_name,
           (value) => customerInfo.lastName = value,
@@ -300,12 +361,11 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
     if (customerInfo.usernamesEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_personal_username,
           (value) => customerInfo.username = value,
@@ -315,11 +375,10 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
-    items.add(
+    fields.add(
       CustomerTextFormField(
         context.locale!.account_info_personal_email,
         (value) => customerInfo.email = value,
@@ -330,10 +389,10 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
         onEditingComplete: () => _editingComplete(),
       ),
     );
-    items.add(offset);
+    fields.add(gap);
 
     if (customerInfo.dateOfBirthEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_personal_date_birth,
           (value) => {},
@@ -347,39 +406,27 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
-    items.add(
-      Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(context.locale!.global_required),
+    fields.add(
+      Text(
+        context.locale!.global_required,
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey.shade500,
         ),
       ),
     );
 
-    return items;
+    return fields;
   }
 
-  List<Widget> fillCompanyDetails(SizedBox offset) {
-    List<Widget> items = <Widget>[];
-
-    items.add(
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          context.locale!.account_info_company,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
-    );
-    items.add(offset);
+  List<Widget> _buildCompanyFields(SizedBox gap) {
+    final fields = <Widget>[];
 
     if (customerInfo.companyEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_company_name,
           (value) => customerInfo.company = value,
@@ -389,12 +436,11 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
     if (customerInfo.displayVatNumber ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_company_vat,
           (value) => customerInfo.vatNumber = value,
@@ -404,42 +450,36 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
         ),
       );
       if (customerInfo.vatNumberStatusNote != null) {
-        items.add(Text(customerInfo.vatNumberStatusNote!));
+        fields.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              customerInfo.vatNumberStatusNote!,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
+          ),
+        );
       }
-      items.add(offset);
+      fields.add(gap);
     }
 
-    if ((widget.customerInfo.companyRequired ?? false)) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(context.locale!.global_required),
-          ),
+    if (widget.customerInfo.companyRequired ?? false) {
+      fields.add(
+        Text(
+          context.locale!.global_required,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
         ),
       );
     }
 
-    return items;
+    return fields;
   }
 
-  List<Widget> fillContactInformation(SizedBox offset) {
-    List<Widget> items = <Widget>[];
-
-    items.add(
-      Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          context.locale!.account_info_contact,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-      ),
-    );
-    items.add(offset);
+  List<Widget> _buildContactFields(SizedBox gap) {
+    final fields = <Widget>[];
 
     if (customerInfo.phoneEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_contact_phone,
           (value) => customerInfo.phone = value,
@@ -449,12 +489,11 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-
-      items.add(offset);
+      fields.add(gap);
     }
 
     if (customerInfo.faxEnabled ?? false) {
-      items.add(
+      fields.add(
         CustomerTextFormField(
           context.locale!.account_info_contact_fax,
           (value) => customerInfo.fax = value,
@@ -464,22 +503,19 @@ class _AccountInfoState extends ConsumerState<AccountInfoContents> {
           onEditingComplete: () => _editingComplete(),
         ),
       );
-      items.add(offset);
+      fields.add(gap);
     }
 
     if ((widget.customerInfo.phoneRequired ?? false) ||
         (widget.customerInfo.faxRequired ?? false)) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(context.locale!.global_required),
-          ),
+      fields.add(
+        Text(
+          context.locale!.global_required,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
         ),
       );
     }
 
-    return items;
+    return fields;
   }
 }

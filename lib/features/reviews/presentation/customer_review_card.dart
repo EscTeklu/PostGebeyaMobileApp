@@ -2,106 +2,123 @@ import 'package:flutter/material.dart';
 import 'package:frontend_api/frontend_api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/product_rating.dart';
-import 'package:nopcommerce_mobile/common_widgets/text_link.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 
-/// Simple card widget to show a product review info (score, comment, date)
+const _blue = Color(0xFF2C2E7B);
+
 class CustomerProductReviewCard extends StatelessWidget {
   const CustomerProductReviewCard(this.review, {super.key});
   final CustomerProductReviewModelDto review;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  review.title ?? "",
-                  style: Theme.of(context).textTheme.titleMedium,
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title + rating row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  review.title ?? '',
+                  style: const TextStyle(
+                    color: _blue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                ProductRating(
-                  initRating: review.rating?.floorToDouble() ?? 0.0,
-                ),
-              ],
+              ),
+              const SizedBox(width: 8),
+              ProductRating(
+                initRating: review.rating?.floorToDouble() ?? 0.0,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Review text
+          if (review.reviewText?.isNotEmpty ?? false) ...[
+            Text(
+              review.reviewText!,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade700,
+                height: 1.4,
+              ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                Text(review.reviewText ?? ""),
-                const SizedBox(height: 12),
-                const Divider(),
-                const SizedBox(height: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            const SizedBox(height: 12),
+          ],
+
+          // Divider
+          Divider(color: Colors.grey.shade200, height: 1),
+          const SizedBox(height: 10),
+
+          // For product + date row
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          flex: 1,
-                          fit: FlexFit.tight,
-                          child: Text(context.locale!.reviews_for),
-                        ),
-                        Flexible(
-                          flex: 4,
-                          fit: FlexFit.tight,
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: TextLink(
-                                label: review.productName ?? "",
-                                onTap:
-                                    () => {
-                                      context.pushNamed(
-                                        Routes.product.name,
-                                        pathParameters: {
-                                          'id': review.productId.toString(),
-                                        },
-                                      ),
-                                    },
-                                textAlign: TextAlign.right,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      context.locale!.reviews_for,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Flexible(
-                          flex: 1,
-                          fit: FlexFit.tight,
-                          child: Text(context.locale!.reviews_date),
+                    const SizedBox(height: 2),
+                    GestureDetector(
+                      onTap: () => context.pushNamed(
+                        Routes.product.name,
+                        pathParameters: {
+                          'id': review.productId.toString(),
+                        },
+                      ),
+                      child: Text(
+                        review.productName ?? '',
+                        style: const TextStyle(
+                          color: _blue,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
-                        Flexible(
-                          flex: 4,
-                          fit: FlexFit.tight,
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              review.writtenOnStr ?? "",
-                              textAlign: TextAlign.right,
-                            ),
-                          ),
-                        ),
-                      ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    context.locale!.reviews_date,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    review.writtenOnStr ?? '',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

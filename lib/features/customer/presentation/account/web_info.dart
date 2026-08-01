@@ -55,7 +55,6 @@ class _WebInfoState extends ConsumerState<WebInfo> {
       url += '/';
     }
     String payUrl = widget.urlWeb.toString();
-    //String paymentInfoUrl = "${url}paymentinfowebview/paymentinfo";
     print(widget.urlWeb);
 
     return Scaffold(
@@ -156,61 +155,3 @@ class _WebInfoState extends ConsumerState<WebInfo> {
   }
 }
 
-
-/*
-class WindowPopup extends StatefulWidget {
-  final CreateWindowAction createWindowAction;
-
-  const WindowPopup({Key? key, required this.createWindowAction})
-      : super(key: key);
-
-  @override
-  State<WindowPopup> createState() => _WindowPopupState();
-}
-
-class _WindowPopupState extends State<WindowPopup> {
-  String title = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(mainAxisSize: MainAxisSize.max, children: [
-              Expanded(
-                child:
-                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-              ),
-              IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.close))
-            ]),
-            Expanded(
-              child: InAppWebView(
-                gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-                  Factory<OneSequenceGestureRecognizer>(
-                        () => EagerGestureRecognizer(),
-                  ),
-                },
-                windowId: widget.createWindowAction.windowId,
-                onTitleChanged: (controller, title) {
-                  setState(() {
-                    this.title = title ?? '';
-                  });
-                },
-                onCloseWindow: (controller) {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}*/

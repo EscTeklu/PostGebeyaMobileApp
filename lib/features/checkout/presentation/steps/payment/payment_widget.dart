@@ -6,10 +6,7 @@ import 'package:nopcommerce_mobile/features/checkout/presentation/steps/payment/
 import 'package:nopcommerce_mobile/frontend_api/lib/frontend_api.dart';
 
 class PaymentForm extends ConsumerWidget {
-  const PaymentForm({
-    required this.onStepContinue,
-    super.key,
-  });
+  const PaymentForm({required this.onStepContinue, super.key});
 
   final VoidCallback onStepContinue;
 
@@ -17,23 +14,12 @@ class PaymentForm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentMethodsData = ref.watch(paymentMethods);
 
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AsyncValueWidget<CheckoutPaymentMethodModelDto?>(
-              value: paymentMethodsData,
-              data: (paymentMethod) => PaymentMethodsFormContents(
-                onStepContinue: onStepContinue,
-                paymentMethod:
-                    (paymentMethod ?? CheckoutPaymentMethodModelDto())
-                        .toBuilder(),
-              ),
-            ),
-          ),
-        ],
+    return AsyncValueWidget<CheckoutPaymentMethodModelDto?>(
+      value: paymentMethodsData,
+      data: (paymentMethod) => PaymentMethodsFormContents(
+        onStepContinue: onStepContinue,
+        paymentMethod:
+            (paymentMethod ?? CheckoutPaymentMethodModelDto()).toBuilder(),
       ),
     );
   }

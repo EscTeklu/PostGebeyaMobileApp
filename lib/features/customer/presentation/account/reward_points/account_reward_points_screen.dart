@@ -4,13 +4,16 @@ import 'package:frontend_api/frontend_api.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:nopcommerce_mobile/common_widgets/async_value.dart';
 import 'package:nopcommerce_mobile/common_widgets/items_not_found.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/app/repository_provider.dart';
 import 'package:nopcommerce_mobile/features/customer/data/customer_repository.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/reward_points/account_reward_points_balance.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/reward_points/account_reward_points_card.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
+
+const _blue = Color(0xFF2C2E7B);
+const _orange = Color(0xFFF5AD00);
+const _bg = Color(0xFFF4F5FB);
 
 class AccountRewardPointsScreen extends ConsumerWidget {
   const AccountRewardPointsScreen({super.key});
@@ -21,10 +24,9 @@ class AccountRewardPointsScreen extends ConsumerWidget {
 
     return AsyncValueWidget<CustomerRewardPointsModelDto?>(
       value: rewardPoints,
-      data:
-          (rewardPoints) => AccountRewardPointsContents(
-            rewardPoints: rewardPoints ?? CustomerRewardPointsModelDto(),
-          ),
+      data: (rewardPoints) => AccountRewardPointsContents(
+        rewardPoints: rewardPoints ?? CustomerRewardPointsModelDto(),
+      ),
     );
   }
 }
@@ -37,50 +39,118 @@ class AccountRewardPointsContents extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      backgroundColor: _bg,
       appBar: AppBar(
-        backgroundColor: GlobalVariables.accentColor,
+        backgroundColor: _blue,
+        elevation: 0,
+        centerTitle: true,
         title: Text(
           context.locale!.account_reward_points,
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
+          style: const TextStyle(
             color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
-          onPressed: () => Navigator.of(context).pop(),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(180.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 20, 10),
-                child: RewardPointsBalance(rewardPoints: rewardPoints),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 30, 0, 10),
-                child: Text(
-                  context.locale!.account_reward_points_history,
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(color: Colors.white),
-                ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 18,
               ),
-            ],
+            ),
           ),
         ),
       ),
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/bg5.jpg', // Replace with your image path
-              fit: BoxFit.cover,
+          // Balance summary card
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF2C2E7B), Color(0xFF3F42A8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.stars_rounded,
+                        color: _orange,
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      context.locale!.account_reward_points,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                RewardPointsBalance(rewardPoints: rewardPoints),
+              ],
             ),
           ),
-          const RewardPointsHistory(),
+          const SizedBox(height: 16),
+          // History section header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    color: _orange,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  context.locale!.account_reward_points_history.toUpperCase(),
+                  style: const TextStyle(
+                    color: _blue,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Paged history list
+          const Expanded(child: RewardPointsHistory()),
         ],
-      )
+      ),
     );
   }
 }
@@ -138,13 +208,29 @@ class _RewardPointsHistoryState extends ConsumerState<RewardPointsHistory> {
   @override
   Widget build(BuildContext context) {
     return PagedListView<int, RewardPointsHistoryModelDto>(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<RewardPointsHistoryModelDto>(
-        itemBuilder: (context, item, index) => RewardPointsCard(item),
-        noItemsFoundIndicatorBuilder:
-            (context) => ItemsNotFound(
-              text: context.locale!.account_reward_points_history_no_found,
+        itemBuilder: (context, item, index) => Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: _blue.withValues(alpha: 0.07),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
+            child: RewardPointsCard(item),
+          ),
+        ),
+        noItemsFoundIndicatorBuilder: (context) => ItemsNotFound(
+          text: context.locale!.account_reward_points_history_no_found,
+        ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:nopcommerce_mobile/constants/app_constants.dart';
 import 'package:nopcommerce_mobile/features/customer/data/download_repository.dart';
 import 'package:nopcommerce_mobile/frontend_api/lib/frontend_api.dart';
 import 'package:nopcommerce_mobile/utils/base_nop_state_notifier.dart';
+import 'package:open_filex/open_filex.dart';
 //import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -86,7 +87,7 @@ class DownloadController extends BaseNopStateNotifier {
     }
 
     try {
-      //OpenFilex.open(file.path);
+      OpenFilex.open(file.path);
     } catch (_) {
       return false;
     }

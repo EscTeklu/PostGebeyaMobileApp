@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/catalog/product_search.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/catalog/catalog_providers.dart';
 import 'package:nopcommerce_mobile/features/products/presentation/catalog/categories_list.dart';
@@ -10,59 +9,62 @@ import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 class CatalogScreen extends ConsumerWidget {
   const CatalogScreen({super.key});
 
+  static const _blue = Color(0xFF2C2E7B);
+  static const _orange = Color(0xFFF5AD00);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesListValue = ref.watch(categoriesListFutureProvider);
 
     return Scaffold(
-      backgroundColor: GlobalVariables.backgroundColor,
+      backgroundColor: const Color(0xFFF4F5FB),
       appBar: AppBar(
-        backgroundColor: GlobalVariables.accentColor,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(1),
-              child: Image.asset(
-                'assets/bottom_logo.png',
-                height: 40,
-                width: 100,
-                fit: BoxFit.contain,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 80),
-              child: Text(
-                context.locale!.catalog,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-
-          ],
+        backgroundColor: _blue,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          context.locale!.catalog,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            letterSpacing: 0.3,
+          ),
         ),
         actions: const [ProductSearch()],
       ),
-      body: Stack(
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/bg5.jpg', // Replace with your image path
-              fit: BoxFit.cover,
-            ),
-          ),
-          ListView(
-            controller: ScrollController(),
+          // Section header
+          Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(5),
-                child: CategoriesList(categoriesListValue),
+              Container(
+                width: 4,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: _orange,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-              //const ManufacturersGrid(),
-              const VendorGrid(),
+              const SizedBox(width: 10),
+              const Text(
+                'Browse Categories',
+                style: TextStyle(
+                  color: _blue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.2,
+                ),
+              ),
             ],
           ),
+          const SizedBox(height: 16),
+          CategoriesList(categoriesListValue),
+          const SizedBox(height: 24),
+          const VendorGrid(),
         ],
-      )
+      ),
     );
   }
 }

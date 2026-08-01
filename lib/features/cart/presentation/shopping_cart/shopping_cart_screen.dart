@@ -4,7 +4,6 @@ import 'package:frontend_api/frontend_api.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/async_value.dart';
 import 'package:nopcommerce_mobile/common_widgets/placeholder_container.dart';
-import 'package:nopcommerce_mobile/constants/global_variables.dart';
 import 'package:nopcommerce_mobile/features/cart/domain/shopping_cart.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/cart_providers.dart';
 import 'package:nopcommerce_mobile/features/cart/presentation/shopping_cart/shopping_cart_item.dart';
@@ -17,15 +16,14 @@ import 'package:nopcommerce_mobile/utils/async_value_ui.dart';
 class ShoppingCartScreen extends ConsumerWidget {
   const ShoppingCartScreen({super.key});
 
-  final Color accentColor = const Color(0xFF2C2E7B);
+  static const _blue = Color(0xFF2C2E7B);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.refresh(shoppingCartFutureProvider.future).then(
-          (value) => {
+      (value) => {
         if (value?.items?.isNotEmpty ?? false)
-          {
-            ref.refresh(shoppingCartTotalsProvider.future),
-          }
+          {ref.refresh(shoppingCartTotalsProvider.future)},
       },
     );
     ref.listen<AsyncValue<ShoppingCart>>(
@@ -34,87 +32,69 @@ class ShoppingCartScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: GlobalVariables.backgroundColor,
+      backgroundColor: const Color(0xFFF4F5FB),
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(1),
-              child: Image.asset(
-                'assets/bottom_logo.png',
-                height: 40,
-                width: 100,
-                fit: BoxFit.contain,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 60),
-              child: Text(
-                context.locale!.cart,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-
-          ],
+        backgroundColor: _blue,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          context.locale!.cart,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
         ),
-        backgroundColor: accentColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white,),
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             onPressed: () {
               ref.refresh(shoppingCartFutureProvider.future).then(
-                    (value) => {
+                (value) => {
                   if (value?.items?.isNotEmpty ?? false)
-                    {
-                      ref.refresh(shoppingCartTotalsProvider.future),
-                    }
+                    {ref.refresh(shoppingCartTotalsProvider.future)},
                 },
               );
             },
-          )
+          ),
         ],
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/bg5.jpg', // Replace with your image path
-              fit: BoxFit.cover,
-            ),
-          ),
-          AppSettings.enableShoppingCart
-              ? Consumer(
-            builder: (BuildContext context, WidgetRef ref, Widget? child) {
-              final cartValue = ref.watch(shoppingCartFutureProvider);
-              return AsyncValueWidget<ShoppingCartModelDto?>(
-                value: cartValue,
-                data: (cart) => RefreshIndicator(
-                  onRefresh: () {
-                    return ref
-                        .refresh(shoppingCartFutureProvider.future)
-                        .whenComplete(() =>
-                        ref.refresh(shoppingCartTotalsProvider.future));
-                  },
-                  child: ShoppingCartBuilder(
-                    cart: cart,
-                    itemBuilder: (_, item, index) => ShoppingCartItem(
-                      item: item,
-                      itemIndex: index,
-                      isEditable: cart?.isEditable ?? true,
+      body: AppSettings.enableShoppingCart
+          ? Consumer(
+              builder: (BuildContext context, WidgetRef ref, Widget? child) {
+                final cartValue = ref.watch(shoppingCartFutureProvider);
+                return AsyncValueWidget<ShoppingCartModelDto?>(
+                  value: cartValue,
+                  data: (cart) => RefreshIndicator(
+                    color: _blue,
+                    onRefresh: () {
+                      return ref
+                          .refresh(shoppingCartFutureProvider.future)
+                          .whenComplete(
+                            () => ref.refresh(shoppingCartTotalsProvider.future),
+                          );
+                    },
+                    child: ShoppingCartBuilder(
+                      cart: cart,
+                      itemBuilder: (_, item, index) => ShoppingCartItem(
+                        item: item,
+                        itemIndex: index,
+                        isEditable: cart?.isEditable ?? true,
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          )
-              : PlaceholderContainer(
-            message: context.locale!.cart_disabled,
-            buttonLable: context.locale!.app_continue_shopping,
-            onPressButton: () => context.goNamed(Routes.catalog.name),
-          ),
-        ],
-      )
+                );
+              },
+            )
+          : PlaceholderContainer(
+              message: context.locale!.cart_disabled,
+              buttonLable: context.locale!.app_continue_shopping,
+              onPressButton: () => context.goNamed(Routes.catalog.name),
+            ),
     );
   }
 }

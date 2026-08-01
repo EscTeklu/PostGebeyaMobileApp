@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nopcommerce_mobile/common_widgets/custom_image.dart';
-import 'package:nopcommerce_mobile/common_widgets/responsive_two_column_layout.dart';
-import 'package:nopcommerce_mobile/common_widgets/text_link.dart';
 import 'package:nopcommerce_mobile/features/customer/presentation/account/account_providers.dart';
 import 'package:nopcommerce_mobile/frontend_api/lib/frontend_api.dart';
 import 'package:nopcommerce_mobile/l10n/app_localizations_context.dart';
 import 'package:nopcommerce_mobile/router/route_utils.dart';
 import 'package:nopcommerce_mobile/utils/common_utility.dart';
+
+const _blue = Color(0xFF2C2E7B);
+const _orange = Color(0xFFF5AD00);
 
 class WishlistItem extends StatelessWidget {
   const WishlistItem({
@@ -25,135 +26,140 @@ class WishlistItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String warnings = '';
-    if (item.warnings?.isNotEmpty ?? false) {
-      item.warnings?.forEach((element) {
-        warnings = ('$warnings$element\n');
-      });
-      warnings.trimRight();
-    }
-
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: _blue.withAlpha(18),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 15, 15, 10),
-        child: ResponsiveTwoColumnLayout(
-          startFlex: 1,
-          endFlex: 4,
-          breakpoint: 320,
-          startContent: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-            child: CustomImage(
-              url:
-                  item.picture?.fullSizeImageUrl ??
-                  item.picture?.imageUrl ??
-                  "",
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Product image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: SizedBox(
+                width: 80,
+                height: 80,
+                child: CustomImage(
+                  url: item.picture?.fullSizeImageUrl ??
+                      item.picture?.imageUrl ??
+                      '',
+                ),
+              ),
             ),
-          ),
-          spacing: 20,
-          endContent: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Stack(
+            const SizedBox(width: 12),
+
+            // Product info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 40),
-                        child: TextLink(
-                          label: item.productName ?? "",
-                          onTap:
-                              () => {
-                                context.pushNamed(
-                                  Routes.product.name,
-                                  pathParameters: {
-                                    'id': item.productId.toString(),
-                                  },
-                                ),
-                              },
-                          textStyle: Theme.of(
-                            context,
-                          ).textTheme.titleMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
+                  // Name + delete button
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => context.pushNamed(
+                            Routes.product.name,
+                            pathParameters: {
+                              'id': item.productId.toString(),
+                            },
+                          ),
+                          child: Text(
+                            item.productName ?? '',
+                            style: const TextStyle(
+                              color: _blue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
-                    ),
+                      RemoveItemWidget(item: item, itemIndex: itemIndex),
+                    ],
                   ),
-                  //if (isEditable)
+                  const SizedBox(height: 6),
+
+                  // SKU
+                  if (item.sku?.isNotEmpty ?? false) ...[
+                    Text(
+                      context.locale!.cart_item_sku.format([item.sku]),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                  ],
+
+                  // Price
+                  if (item.unitPrice?.isNotEmpty ?? false)
+                    Text(
+                      item.unitPrice!,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: _orange,
+                      ),
+                    ),
+
+                  // Quantity
+                  if (item.quantity != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      context.locale!.cart_item_quantity.format([item.quantity]),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+
+                  // Attributes / rental info
+                  if (item.attributeInfo?.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 4),
+                    HtmlWidget(
+                      item.attributeInfo!,
+                      textStyle: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                  if (item.rentalInfo?.isNotEmpty ?? false) ...[
+                    const SizedBox(height: 4),
+                    HtmlWidget(
+                      item.rentalInfo!,
+                      textStyle: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+
+                  // Add to cart button
+                  const SizedBox(height: 10),
                   Align(
-                    alignment: Alignment.topRight,
-                    child: RemoveItemWidget(item: item, itemIndex: itemIndex),
+                    alignment: Alignment.centerRight,
+                    child: AddItemWidget(item: item, itemIndex: itemIndex),
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  if (item.sku?.isNotEmpty ?? false)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 3),
-                        Text(
-                          context.locale!.cart_item_sku.format([item.sku]),
-                          style: const TextStyle(fontSize: 14.0),
-                        ),
-                        Text(
-                          context.locale!.cart_item_price.format([
-                            item.unitPrice,
-                          ]),
-                        ),
-                        Text(
-                          context.locale!.cart_item_quantity.format([
-                            item.quantity,
-                          ]),
-                        ),
-                        Text(
-                          '${item.subTotal}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.headlineSmall!.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
-              if (item.rentalInfo?.isNotEmpty ?? false)
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 3),
-                      HtmlWidget(
-                        item.rentalInfo ?? '',
-                        textStyle: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              if (item.attributeInfo?.isNotEmpty ?? false)
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 3),
-                      HtmlWidget(
-                        item.attributeInfo ?? '',
-                        textStyle: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-              Align(
-                alignment: Alignment.topRight,
-                child: AddItemWidget(item: item, itemIndex: itemIndex),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -169,28 +175,27 @@ class RemoveItemWidget extends ConsumerWidget {
   final WishlistShoppingCartItemModelDto item;
   final int itemIndex;
 
-  // * Keys for testing using find.byKey()
   static Key deleteKey(int index) => Key('delete-$index');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(wishlistControllerProvider);
     return SizedBox(
-      width: 25,
-      height: 25,
+      width: 32,
+      height: 32,
       child: IconButton(
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.all(0),
+        padding: EdgeInsets.zero,
         key: deleteKey(itemIndex),
-        icon: const Icon(Icons.delete),
-        onPressed:
-            state.isLoading
-                ? null
-                : () {
-                  ref
-                      .read(wishlistControllerProvider.notifier)
-                      .removeItemById(item.id!);
-                },
+        icon: Icon(
+          Icons.delete_outline_rounded,
+          size: 20,
+          color: Colors.red.shade300,
+        ),
+        onPressed: state.isLoading
+            ? null
+            : () => ref
+                .read(wishlistControllerProvider.notifier)
+                .removeItemById(item.id!),
       ),
     );
   }
@@ -201,28 +206,34 @@ class AddItemWidget extends ConsumerWidget {
   final WishlistShoppingCartItemModelDto item;
   final int itemIndex;
 
-  // * Keys for testing using find.byKey()
-  static Key deleteKey(int index) => Key('delete-$index');
+  static Key addKey(int index) => Key('add-$index');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(wishlistControllerProvider);
     return SizedBox(
-      width: 25,
-      height: 25,
-      child: IconButton(
-        alignment: Alignment.topRight,
-        padding: const EdgeInsets.all(0),
-        key: deleteKey(itemIndex),
-        icon: const Icon(Icons.shopping_cart_checkout),
-        onPressed:
-            state.isLoading
-                ? null
-                : () {
-                  ref
-                      .read(wishlistControllerProvider.notifier)
-                      .addItemToCartById(item.id!);
-                },
+      height: 34,
+      child: ElevatedButton.icon(
+        key: addKey(itemIndex),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: state.isLoading ? Colors.grey.shade200 : _orange,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        icon: const Icon(Icons.shopping_cart_outlined, size: 16),
+        label: Text(
+          context.locale!.cart_add_to,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+        ),
+        onPressed: state.isLoading
+            ? null
+            : () => ref
+                .read(wishlistControllerProvider.notifier)
+                .addItemToCartById(item.id!),
       ),
     );
   }
