@@ -49,3 +49,15 @@ lib/themes/nopCommerce/dist/styledictionary/node_modules/
 
 # FVM Version Cache
 .fvm/
+
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+**/xcuserdata/
